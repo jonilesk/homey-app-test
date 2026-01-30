@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "FMI Weather",
+    "description": "Weather data from Finnish Meteorological Institute"
+  },
+  "drivers": {
+    "weather_city": {
+      "name": "City Weather"
+    }
+  },
+  "settings": {
+    "city": "City",
+    "pollInterval": "Poll interval (minutes)"
+  },
+  "errors": {
+    "api_unreachable": "Weather API unreachable"
+  }
+}

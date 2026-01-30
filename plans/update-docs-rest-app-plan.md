@@ -59,4 +59,4 @@ Update these docs:
 ---
 
 ## Status
-**Completed** — all docs updated.
+**Completed** — all docs updated and verified.

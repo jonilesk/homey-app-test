@@ -1,0 +1,56 @@
+{
+  "name": {
+    "en": "City Weather",
+    "fi": "Kaupungin sää"
+  },
+  "class": "sensor",
+  "capabilities": ["measure_temperature"],
+  "energy": {
+    "approximation": {
+      "usageConstant": 0
+    }
+  },
+  "settings": [
+    {
+      "id": "city",
+      "type": "text",
+      "label": {
+        "en": "City",
+        "fi": "Kaupunki"
+      },
+      "value": "Helsinki",
+      "hint": {
+        "en": "Finnish city name for weather data",
+        "fi": "Suomalainen kaupungin nimi säätiedoille"
+      }
+    },
+    {
+      "id": "pollInterval",
+      "type": "number",
+      "label": {
+        "en": "Poll interval (minutes)",
+        "fi": "Päivitysväli (minuuttia)"
+      },
+      "value": 15,
+      "min": 5,
+      "max": 60,
+      "hint": {
+        "en": "How often to fetch weather data (5-60 minutes)",
+        "fi": "Kuinka usein säätiedot haetaan (5-60 minuuttia)"
+      }
+    }
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

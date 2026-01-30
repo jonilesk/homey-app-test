@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "FMI Sää",
+    "description": "Säätiedot Ilmatieteen laitokselta"
+  },
+  "drivers": {
+    "weather_city": {
+      "name": "Kaupungin sää"
+    }
+  },
+  "settings": {
+    "city": "Kaupunki",
+    "pollInterval": "Päivitysväli (minuuttia)"
+  },
+  "errors": {
+    "api_unreachable": "Sää-API ei ole tavoitettavissa"
+  }
+}
