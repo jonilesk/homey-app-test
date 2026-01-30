@@ -13,16 +13,27 @@ homey app run --remote
 - Streams logs to your terminal while the command is running.
 - Stopping the command typically stops/uninstalls the dev session app (intended for fast loops).
 
-### Install for longer testing
-Use when you want the app to keep running without the CLI session:
+### Install for longer testing / permanent use
+Use when you want the app to persist across reboots without CLI:
 ```bash
 homey app install
 ```
+
+This is the recommended method for:
+- Personal/private apps you want to use daily
+- Long-running soak tests
+- Apps you don't plan to publish to the App Store
 
 ### Uninstall
 ```bash
 homey app uninstall
 ```
+
+### Build only (validate without deploying)
+```bash
+homey app build
+```
+Generates `.homeybuild/` output and validates. Useful to check for errors before running.
 
 ## Suggested daily loop
 1. `homey app run --remote`

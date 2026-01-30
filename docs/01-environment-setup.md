@@ -1,11 +1,11 @@
 # Environment Setup (VS Code + Homey Pro 2023)
 
 ## Requirements
-- **Node.js 18+**
+- **Node.js 18+** (check: `node --version`)
+- **npm** (check: `npm --version`)
 - **Homey CLI** (`homey`)
-- (Optional) **Docker**
-  - Useful for certain dev scenarios (e.g., widgets/webviews) and some tooling paths.
-  - For Homey Pro (2023) core app logic, you can usually develop remotely on device without Docker by using `--remote`.
+
+Docker is **not required** for most Homey app development. Use `homey app run --remote` to develop directly on your Homey Pro.
 
 ## Install Homey CLI
 ```bash
@@ -15,15 +15,15 @@ homey --version
 
 ## Login & select Homey
 ```bash
-homey login
-homey app list
+homey login          # Opens browser for authentication
+homey select         # Choose which Homey to target
+homey list           # Verify connection
 ```
 
 ## VS Code recommendations
 ### Extensions
-- Homey VS Code Extension (beta) (optional)
-- ESLint (optional)
-- EditorConfig (optional)
+- ESLint (optional, for code quality)
+- EditorConfig (optional, for consistent formatting)
 
 ### Workspace settings (optional)
 Create `.vscode/settings.json`:
@@ -46,13 +46,25 @@ cd <your.app.id>
 code .
 ```
 
-## Recommended Node tooling
-Add scripts in `package.json` (example):
+Or manually create the structure (see `02-project-structure-homey-compose.md`).
+
+## Minimal package.json
 ```json
 {
-  "scripts": {
-    "lint": "eslint .",
-    "test": "node ./tools/smoke-test.js"
+  "name": "your.app.id",
+  "version": "1.0.0",
+  "main": "app.js",
+  "engines": {
+    "node": ">=18"
   }
 }
 ```
+
+**Important:** Do NOT add `homey` as a dependency. The Homey runtime provides it.
+
+## Verify setup
+```bash
+homey app validate --level debug
+```
+
+If this passes, your environment is ready for development.

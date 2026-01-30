@@ -6,28 +6,43 @@ Homey Compose allows you to manage `app.json` as multiple source files (drivers,
 ## Recommended structure (common pattern)
 ```text
 /
-  app.js
-  package.json
+  app.js                              # App entry point (extends Homey.App)
+  app.json                            # Root manifest (required, merged with compose)
+  package.json                        # No homey dependency needed (runtime provides it)
   .homeycompose/
-    app.json
-    drivers/
-      <driver_id>.json
-    flow/
+    app.json                          # App manifest source (id, version, permissions, etc.)
+    flow/                             # App-level flow cards (optional)
       triggers/
       conditions/
       actions/
+  .homeybuild/                        # Generated output (gitignore this)
   drivers/
     <driver_id>/
-      driver.js
-      device.js
+      driver.js                       # Pairing logic
+      device.js                       # Device runtime logic
+      driver.compose.json             # Driver manifest (name, capabilities, settings, pair)
       assets/
-      pairing/
-        views/
-        assets/
-``
+        icon.svg                      # Driver icon (transparent background)
+        images/                       # PNG images for App Store (optional)
+          small.png                   # 75x75
+          large.png                   # 500x500
+  assets/
+    icon.svg                          # App icon (960x960 canvas, transparent)
+    images/                           # PNG images for App Store (optional)
+      small.png                       # 250x175
+      large.png                       # 500x350
+  locales/
+    en.json                           # English translations (required)
+    fi.json                           # Additional locales (optional)
+```
+
+**Key learnings:**
+- Driver compose files go in `drivers/<driver_id>/driver.compose.json` (not `.homeycompose/drivers/`)
+- Root `app.json` is required and merged with `.homeycompose/app.json`
+- Don't add `homey` as a dependency in `package.json` - the runtime provides it
+- `.homeybuild/` is generated output - add to `.gitignore`
 
 Notes:
-- Some projects keep driver manifests exclusively in `.homeycompose/` and runtime logic in `drivers/<driver_id>/`.
 - Keep IDs stable: renaming a `driver_id` or capability can break existing users.
 
 ## Naming conventions
@@ -57,7 +72,11 @@ References:
 - https://apps.developer.homey.app/the-basics/app/permissions
 
 ## Checklist before first run
-- `package.json` contains required dependencies
-- `app.js` exists and exports/initializes Homey.App (SDK style)
-- Driver folders exist for any declared drivers
-- Any pairing UI assets are included and referenced correctly
+- `package.json` exists (do NOT include `homey` as a dependency)
+- `app.json` exists at root with at least `id`, `version`, `compatibility`, `sdk`
+- `.homeycompose/app.json` exists with full app metadata
+- `app.js` exists and exports class extending `Homey.App`
+- Driver folders exist with `driver.compose.json` for each declared driver
+- Driver folders contain `driver.js` and `device.js`
+- Icons exist: `assets/icon.svg` and `drivers/<id>/assets/icon.svg`
+- Run `homey app validate --level debug` to catch issues early

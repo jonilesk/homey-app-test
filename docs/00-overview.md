@@ -35,7 +35,7 @@ This documentation package defines a repeatable, VS Code-first workflow for buil
 This package expects you to place these files in your repo:
 
 ```text
-docs/homey/
+docs/
   00-overview.md
   01-environment-setup.md
   02-project-structure-homey-compose.md
@@ -47,4 +47,6 @@ docs/homey/
   08-versioning-migration-release.md
   09-troubleshooting.md
   10-security-privacy.md
+  11-publishing-to-app-store.md
+  12-local-installation.md
 ```

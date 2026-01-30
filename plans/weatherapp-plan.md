@@ -145,7 +145,7 @@ module.exports = WeatherCityDevice;
 - [x] Login to Homey CLI (`homey login`)
 - [x] Create app skeleton with `homey app create`
 - [x] Add app manifest in `.homeycompose/app.json`
-- [x] Add driver manifest in `.homeycompose/drivers/weather_city.json`
+- [x] Add driver manifest in `drivers/weather_city/driver.compose.json`
 - [x] Create `drivers/weather_city/driver.js` (pairing)
 - [x] Create `drivers/weather_city/device.js` (FMI fetch + update capability)
 - [x] Add driver icon in `drivers/weather_city/assets/icon.svg`
@@ -160,7 +160,7 @@ module.exports = WeatherCityDevice;
 - [x] Homey CLI logged in
 
 ## Status
-**In Progress** — app structure created, validated at debug level. Ready for device testing.
+**Completed** — test app built and validated. Learnings documented in `docs/`.
 
 ## References
 - FMI Open Data manual (CSW/WFS): https://en.ilmatieteenlaitos.fi/open-data-manual-api-access-csw
