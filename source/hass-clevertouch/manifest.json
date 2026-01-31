@@ -1,0 +1,15 @@
+{
+  "domain": "clevertouch",
+  "name": "CleverTouch",
+  "config_flow": true,
+  "documentation": "https://github.com/hemphen/hass-clevertouch",
+  "issue_tracker": "https://github.com/hemphen/hass-clevertouch/issues",
+  "requirements": ["clevertouch==0.5.0"],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": ["@hemphen"],
+  "iot_class": "cloud_polling",
+  "version": "0.5.0"
+}
