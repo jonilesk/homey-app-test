@@ -1,0 +1,11 @@
+{
+  "app": {
+    "name": "Tuya Zigbee Temperature",
+    "description": "Support for Tuya TS0201 Zigbee temperature and humidity sensors"
+  },
+  "drivers": {
+    "tuya_ts0201": {
+      "name": "Tuya TS0201 Temperature Sensor"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960" fill="none" stroke="#FF6B35" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Thermometer body -->
+  <path d="M480 120 L480 600" stroke-width="60"/>
+  <circle cx="480" cy="720" r="120" fill="#FF6B35"/>
+  <!-- Temperature marks -->
+  <line x1="520" y1="200" x2="580" y2="200"/>
+  <line x1="520" y1="300" x2="560" y2="300"/>
+  <line x1="520" y1="400" x2="580" y2="400"/>
+  <line x1="520" y1="500" x2="560" y2="500"/>
+  <!-- Mercury level -->
+  <line x1="480" y1="400" x2="480" y2="640" stroke-width="30" stroke="#FF6B35"/>
+  <!-- Zigbee signal waves -->
+  <path d="M700 300 Q750 350 700 400" fill="none" stroke-width="25"/>
+  <path d="M750 250 Q830 350 750 450" fill="none" stroke-width="25"/>
+</svg>

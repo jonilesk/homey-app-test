@@ -1,0 +1,12 @@
+{
+  "name": "com.tuya.zigbee.temp",
+  "version": "1.0.0",
+  "main": "app.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "homey-zigbeedriver": "^2.0.0",
+    "zigbee-clusters": "^2.0.0"
+  }
+}
