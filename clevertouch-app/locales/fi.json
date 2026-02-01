@@ -1,0 +1,13 @@
+{
+  "pair": {
+    "error": {
+      "list_devices": "Laitteiden listaus epäonnistui. Tarkista yhteys ja yritä uudelleen."
+    }
+  },
+  "errors": {
+    "set_temperature_failed": "Lämpötilan asetus epäonnistui. Yritä uudelleen.",
+    "set_mode_failed": "Lämmitystilan asetus epäonnistui. Yritä uudelleen.",
+    "invalid_mode": "Virheellinen lämmitystila valittu.",
+    "set_presets_failed": "Lämpötila-asetusten päivitys epäonnistui. Yritä uudelleen."
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "boost_ended",
+    "title": {
+      "en": "Boost mode ended",
+      "fi": "Tehostustila päättyi"
+    },
+    "hint": {
+      "en": "Triggered when boost mode ends",
+      "fi": "Laukeaa kun tehostustila päättyy"
+    },
+    "args": [
+      {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=radiator"
+      }
+    ]
+  }
+]

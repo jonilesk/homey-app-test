@@ -1,0 +1,98 @@
+[
+  {
+    "id": "is_heating",
+    "title": {
+      "en": "Is !{{heating|not heating}}",
+      "fi": "!{{Lämmittää|Ei lämmitä}}"
+    },
+    "titleFormatted": {
+      "en": "Radiator is !{{heating|not heating}}",
+      "fi": "Patteri !{{lämmittää|ei lämmitä}}"
+    },
+    "hint": {
+      "en": "Check if the radiator is actively heating",
+      "fi": "Tarkista onko patteri aktiivisesti lämmittämässä"
+    },
+    "args": [
+      {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=radiator"
+      }
+    ]
+  },
+  {
+    "id": "heat_mode_is",
+    "title": {
+      "en": "Heat mode !{{is|is not}}...",
+      "fi": "Lämmitystila !{{on|ei ole}}..."
+    },
+    "titleFormatted": {
+      "en": "Heat mode !{{is|is not}} [[mode]]",
+      "fi": "Lämmitystila !{{on|ei ole}} [[mode]]"
+    },
+    "hint": {
+      "en": "Check if the heat mode matches the selected mode",
+      "fi": "Tarkista onko lämmitystila valittu tila"
+    },
+    "args": [
+      {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=radiator"
+      },
+      {
+        "type": "dropdown",
+        "name": "mode",
+        "title": {
+          "en": "Mode",
+          "fi": "Tila"
+        },
+        "values": [
+          {
+            "id": "Off",
+            "title": {
+              "en": "Off",
+              "fi": "Pois"
+            }
+          },
+          {
+            "id": "Frost",
+            "title": {
+              "en": "Frost Protection",
+              "fi": "Hallansuojaus"
+            }
+          },
+          {
+            "id": "Eco",
+            "title": {
+              "en": "Eco",
+              "fi": "Eco"
+            }
+          },
+          {
+            "id": "Comfort",
+            "title": {
+              "en": "Comfort",
+              "fi": "Mukavuus"
+            }
+          },
+          {
+            "id": "Program",
+            "title": {
+              "en": "Program",
+              "fi": "Ohjelma"
+            }
+          },
+          {
+            "id": "Boost",
+            "title": {
+              "en": "Boost",
+              "fi": "Tehostus"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

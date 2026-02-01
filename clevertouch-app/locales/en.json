@@ -1,0 +1,13 @@
+{
+  "pair": {
+    "error": {
+      "list_devices": "Failed to list devices. Please check your connection and try again."
+    }
+  },
+  "errors": {
+    "set_temperature_failed": "Failed to set temperature. Please try again.",
+    "set_mode_failed": "Failed to set heat mode. Please try again.",
+    "invalid_mode": "Invalid heat mode selected.",
+    "set_presets_failed": "Failed to update temperature presets. Please try again."
+  }
+}

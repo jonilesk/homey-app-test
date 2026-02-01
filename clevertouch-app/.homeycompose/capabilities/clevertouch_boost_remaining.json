@@ -1,0 +1,22 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Boost Time Remaining",
+    "fi": "Tehostus jäljellä"
+  },
+  "desc": {
+    "en": "Remaining time for boost mode in minutes",
+    "fi": "Tehostustilan jäljellä oleva aika minuutteina"
+  },
+  "units": {
+    "en": "min",
+    "fi": "min"
+  },
+  "min": 0,
+  "max": 180,
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/boost_remaining.svg"
+}

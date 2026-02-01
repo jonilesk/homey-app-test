@@ -1,0 +1,59 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Heat Mode",
+    "fi": "Lämmitystila"
+  },
+  "desc": {
+    "en": "Operating mode of the radiator",
+    "fi": "Patterin toimintatila"
+  },
+  "values": [
+    {
+      "id": "Off",
+      "title": {
+        "en": "Off",
+        "fi": "Pois"
+      }
+    },
+    {
+      "id": "Frost",
+      "title": {
+        "en": "Frost Protection",
+        "fi": "Hallansuojaus"
+      }
+    },
+    {
+      "id": "Eco",
+      "title": {
+        "en": "Eco",
+        "fi": "Eco"
+      }
+    },
+    {
+      "id": "Comfort",
+      "title": {
+        "en": "Comfort",
+        "fi": "Mukavuus"
+      }
+    },
+    {
+      "id": "Program",
+      "title": {
+        "en": "Program",
+        "fi": "Ohjelma"
+      }
+    },
+    {
+      "id": "Boost",
+      "title": {
+        "en": "Boost",
+        "fi": "Tehostus"
+      }
+    }
+  ],
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "icon": "/assets/heat_mode.svg"
+}

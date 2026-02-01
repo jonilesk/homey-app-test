@@ -1,0 +1,140 @@
+{
+  "name": {
+    "en": "CleverTouch Radiator",
+    "fi": "CleverTouch Patteri"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "measure_temperature",
+    "target_temperature",
+    "clevertouch_heat_mode",
+    "clevertouch_heating_active",
+    "clevertouch_boost_remaining"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 5,
+      "max": 30,
+      "step": 0.5
+    }
+  },
+  "energy": {
+    "approximation": {
+      "usageConstant": 1000
+    }
+  },
+  "pair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "../../../assets/icon.svg",
+        "title": {
+          "en": "Login to CleverTouch",
+          "fi": "Kirjaudu CleverTouch-palveluun"
+        },
+        "usernameLabel": {
+          "en": "Email",
+          "fi": "Sähköposti"
+        },
+        "usernamePlaceholder": {
+          "en": "your@email.com",
+          "fi": "sinun@sahkoposti.fi"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "fi": "Salasana"
+        },
+        "passwordPlaceholder": {
+          "en": "Password",
+          "fi": "Salasana"
+        }
+      }
+    },
+    {
+      "id": "select_brand",
+      "template": "list_devices",
+      "navigation": {
+        "next": "select_home"
+      }
+    },
+    {
+      "id": "select_home",
+      "template": "list_devices",
+      "navigation": {
+        "next": "list_devices"
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices"
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "id": "comfortTemp",
+      "type": "number",
+      "label": {
+        "en": "Comfort Temperature",
+        "fi": "Mukavuuslämpötila"
+      },
+      "hint": {
+        "en": "Target temperature for Comfort mode",
+        "fi": "Tavoitelämpötila Mukavuus-tilassa"
+      },
+      "value": 21,
+      "min": 5,
+      "max": 30,
+      "step": 0.5,
+      "units": {
+        "en": "°C"
+      }
+    },
+    {
+      "id": "ecoTemp",
+      "type": "number",
+      "label": {
+        "en": "Eco Temperature",
+        "fi": "Eco-lämpötila"
+      },
+      "hint": {
+        "en": "Target temperature for Eco mode",
+        "fi": "Tavoitelämpötila Eco-tilassa"
+      },
+      "value": 18,
+      "min": 5,
+      "max": 30,
+      "step": 0.5,
+      "units": {
+        "en": "°C"
+      }
+    },
+    {
+      "id": "frostTemp",
+      "type": "number",
+      "label": {
+        "en": "Frost Protection Temperature",
+        "fi": "Hallansuojauslämpötila"
+      },
+      "hint": {
+        "en": "Target temperature for Frost protection mode",
+        "fi": "Tavoitelämpötila Hallansuoja-tilassa"
+      },
+      "value": 7,
+      "min": 5,
+      "max": 15,
+      "step": 0.5,
+      "units": {
+        "en": "°C"
+      }
+    }
+  ],
+  "images": {
+    "large": "/drivers/radiator/assets/images/large.png",
+    "small": "/drivers/radiator/assets/images/small.png"
+  }
+}

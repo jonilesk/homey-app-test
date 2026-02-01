@@ -1,0 +1,15 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Heating Active",
+    "fi": "Lämmittää"
+  },
+  "desc": {
+    "en": "Whether the radiator is actively heating",
+    "fi": "Onko patteri aktiivisesti lämmittämässä"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/heating_active.svg"
+}
