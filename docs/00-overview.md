@@ -9,6 +9,7 @@ This documentation package defines a repeatable, VS Code-first workflow for buil
 - Development loop (run/install/debug)
 - Coding standards (stability, logging, error handling)
 - Devices & drivers (capabilities, pairing)
+- OAuth2 authentication & cloud-connected devices
 - Flows (cards, triggers/actions/conditions)
 - Testing & validation
 - Versioning, migrations, releases
@@ -49,4 +50,5 @@ docs/
   10-security-privacy.md
   11-publishing-to-app-store.md
   12-local-installation.md
+  13-oauth2-cloud-devices.md        ← OAuth2 apps & cloud-connected devices
 ```
