@@ -1,0 +1,21 @@
+{
+  "title": {
+    "en": "Start boost mode",
+    "fi": "Käynnistä tehostustila"
+  },
+  "titleFormatted": {
+    "en": "Start boost mode",
+    "fi": "Käynnistä tehostustila"
+  },
+  "hint": {
+    "en": "Switch to boost mode for quick heating",
+    "fi": "Vaihda tehostustilaan nopeaa lämmitystä varten"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=radiator"
+    }
+  ]
+}

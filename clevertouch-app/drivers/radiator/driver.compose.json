@@ -52,22 +52,11 @@
       }
     },
     {
-      "id": "select_brand",
-      "template": "list_devices",
-      "navigation": {
-        "next": "select_home"
-      }
-    },
-    {
-      "id": "select_home",
-      "template": "list_devices",
-      "navigation": {
-        "next": "list_devices"
-      }
-    },
-    {
       "id": "list_devices",
-      "template": "list_devices"
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
     },
     {
       "id": "add_devices",

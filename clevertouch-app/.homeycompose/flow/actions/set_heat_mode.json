@@ -1,0 +1,37 @@
+{
+  "title": {
+    "en": "Set heat mode",
+    "fi": "Aseta lämmitystila"
+  },
+  "titleFormatted": {
+    "en": "Set heat mode to [[mode]]",
+    "fi": "Aseta lämmitystila [[mode]]"
+  },
+  "hint": {
+    "en": "Change the heating mode",
+    "fi": "Vaihda lämmitystila"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=radiator"
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Mode",
+        "fi": "Tila"
+      },
+      "values": [
+        { "id": "Off", "title": { "en": "Off", "fi": "Pois" } },
+        { "id": "Frost", "title": { "en": "Frost Protection", "fi": "Hallansuojaus" } },
+        { "id": "Eco", "title": { "en": "Eco", "fi": "Eco" } },
+        { "id": "Comfort", "title": { "en": "Comfort", "fi": "Mukavuus" } },
+        { "id": "Program", "title": { "en": "Program", "fi": "Ohjelma" } },
+        { "id": "Boost", "title": { "en": "Boost", "fi": "Tehostus" } }
+      ]
+    }
+  ]
+}

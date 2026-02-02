@@ -9,6 +9,20 @@ class RadiatorDriver extends OAuth2Driver {
    */
   async onInit() {
     this.log('RadiatorDriver has been initialized');
+    this.debug = true; // Enable extra debug output
+  }
+
+  /**
+   * Called when pairing starts
+   */
+  async onPair(session) {
+    this.log('[PAIR] Pairing session started');
+    
+    session.setHandler('showView', async (viewId) => {
+      this.log(`[PAIR] Showing view: ${viewId}`);
+    });
+
+    return super.onPair(session);
   }
 
   /**
@@ -16,56 +30,84 @@ class RadiatorDriver extends OAuth2Driver {
    * This should return an array with the data of devices available for pairing.
    */
   async onPairListDevices({ oAuth2Client }) {
-    this.log('Listing devices for pairing');
+    this.log('[PAIR] onPairListDevices called');
+    this.log('[PAIR] oAuth2Client exists:', !!oAuth2Client);
+    
+    if (oAuth2Client) {
+      this.log('[PAIR] Token exists:', !!oAuth2Client.getToken());
+      try {
+        const token = oAuth2Client.getToken();
+        this.log('[PAIR] Token details:', JSON.stringify({
+          hasAccessToken: !!token?.access_token,
+          hasRefreshToken: !!token?.refresh_token,
+          tokenType: token?.token_type
+        }));
+      } catch (e) {
+        this.log('[PAIR] Could not get token info:', e.message);
+      }
+    }
 
     try {
+      // Get stored email from pairing session
+      const email = oAuth2Client._email || this.homey.settings.get('clevertouch_email');
+      this.log('[PAIR] Using email:', email);
+      
+      if (!email) {
+        throw new Error('No email found - please log in again');
+      }
+
       // Get user data to access homes
-      const userData = await oAuth2Client.getUser();
-      this.log(`Found user: ${userData.email || 'unknown'}`);
+      this.log('[PAIR] Calling getUser()...');
+      const userData = await oAuth2Client.getUser(email);
+      this.log('[PAIR] User data received:', JSON.stringify(userData, null, 2));
+      this.log(`[PAIR] Found user: ${userData.user_id || 'unknown'}`);
 
       // For now, return all available devices from all homes
-      // In a more sophisticated implementation, we could let user select home first
       const allDevices = [];
 
-      if (userData.homes && Array.isArray(userData.homes)) {
-        for (const home of userData.homes) {
-          this.log(`Fetching devices from home: ${home.name} (${home.id})`);
+      if (userData.smarthomes && Array.isArray(userData.smarthomes)) {
+        for (const home of userData.smarthomes) {
+          this.log(`[PAIR] Fetching devices from home: ${home.label} (${home.smarthome_id})`);
 
           try {
-            const devices = await oAuth2Client.getDevices(home.id);
+            const homeData = await oAuth2Client.getHome(home.smarthome_id);
+            const devices = homeData.devices || [];
 
-            // Filter only radiators (type 'R')
-            const radiators = devices.filter(device => device.type === 'R');
+            // Filter only radiator devices (id_device starts with 'R')
+            const radiators = devices.filter(device => 
+              device.id_device && device.id_device.startsWith('R')
+            );
 
-            this.log(`Found ${radiators.length} radiators in home ${home.name}`);
+            this.log(`[PAIR] Found ${radiators.length} radiators in home ${home.label}`);
 
             // Map to Homey device format
             for (const device of radiators) {
               allDevices.push({
-                name: device.name || `Radiator ${device.local_id}`,
+                name: device.label_interface || `Radiator ${device.id_device}`,
                 data: {
-                  id: `${home.id}_${device.local_id}`, // Unique ID combining home and device
-                  homeId: home.id,
-                  deviceLocalId: device.local_id,
-                  deviceType: device.type
+                  id: `${home.smarthome_id}_${device.id_device}`,
+                  homeId: home.smarthome_id,
+                  deviceLocalId: device.id_device,
+                  deviceId: device.id
                 },
                 store: {
-                  homeName: home.name
+                  homeName: home.label,
+                  email: email
                 },
                 settings: {
-                  comfortTemp: device.setpoint_comfort ? device.setpoint_comfort / 10 : 21,
-                  ecoTemp: device.setpoint_eco ? device.setpoint_eco / 10 : 18,
-                  frostTemp: device.setpoint_frost ? device.setpoint_frost / 10 : 7
+                  comfortTemp: device.consigne_confort ? parseInt(device.consigne_confort) / 10 : 21,
+                  ecoTemp: device.consigne_eco ? parseInt(device.consigne_eco) / 10 : 18,
+                  frostTemp: device.consigne_hg ? parseInt(device.consigne_hg) / 10 : 7
                 }
               });
             }
           } catch (error) {
-            this.error(`Error fetching devices from home ${home.id}:`, error);
+            this.error(`[PAIR] Error fetching devices from home ${home.smarthome_id}:`, error);
           }
         }
       }
 
-      this.log(`Total devices available for pairing: ${allDevices.length}`);
+      this.log(`[PAIR] Total devices available for pairing: ${allDevices.length}`);
       return allDevices;
 
     } catch (error) {

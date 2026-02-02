@@ -1,0 +1,21 @@
+{
+  "title": {
+    "en": "Is !{{heating|not heating}}",
+    "fi": "!{{Lämmittää|Ei lämmitä}}"
+  },
+  "titleFormatted": {
+    "en": "Radiator is !{{heating|not heating}}",
+    "fi": "Patteri !{{lämmittää|ei lämmitä}}"
+  },
+  "hint": {
+    "en": "Check if the radiator is actively heating",
+    "fi": "Tarkista onko patteri aktiivisesti lämmittämässä"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=radiator"
+    }
+  ]
+}

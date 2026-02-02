@@ -6,12 +6,18 @@ const CleverTouchOAuth2Client = require('./lib/CleverTouchOAuth2Client');
 class CleverTouchApp extends OAuth2App {
 
   static OAUTH2_CLIENT = CleverTouchOAuth2Client;
+  static OAUTH2_DEBUG = true; // Enable debug logging
 
   /**
-   * onInit is called when the app is initialized.
+   * onOAuth2Init is called when the OAuth2App is initialized.
    */
-  async onInit() {
-    this.log('CleverTouch app has been initialized');
+  async onOAuth2Init() {
+    this.log('[App] CleverTouch OAuth2 app initializing...');
+    
+    // Enable debugging
+    this.enableOAuth2Debug();
+    
+    this.log('[App] CleverTouch app has been initialized');
 
     // Register flow cards
     this._registerFlowCards();
@@ -54,7 +60,17 @@ class CleverTouchApp extends OAuth2App {
         return matches;
       });
 
+    // Register boost_ended trigger (called from device)
+    this._boostEndedTrigger = this.homey.flow.getDeviceTriggerCard('boost_ended');
+
     this.log('Flow cards registered');
+  }
+
+  /**
+   * Trigger the boost_ended flow for a device
+   */
+  triggerBoostEnded(device) {
+    this._boostEndedTrigger.trigger(device).catch(this.error);
   }
 
 }
