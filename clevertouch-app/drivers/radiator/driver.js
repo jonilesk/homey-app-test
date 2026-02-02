@@ -8,6 +8,7 @@ class RadiatorDriver extends OAuth2Driver {
    * onInit is called when the driver is initialized.
    */
   async onInit() {
+    await super.onInit();
     this.log('RadiatorDriver has been initialized');
     this.debug = true; // Enable extra debug output
   }
@@ -35,6 +36,8 @@ class RadiatorDriver extends OAuth2Driver {
     
     if (oAuth2Client) {
       this.log('[PAIR] Token exists:', !!oAuth2Client.getToken());
+      this.log('[PAIR] OAuth2 Session ID:', oAuth2Client._sessionId);
+      this.log('[PAIR] OAuth2 Config ID:', oAuth2Client._configId);
       try {
         const token = oAuth2Client.getToken();
         this.log('[PAIR] Token details:', JSON.stringify({
@@ -72,18 +75,60 @@ class RadiatorDriver extends OAuth2Driver {
           try {
             const homeData = await oAuth2Client.getHome(home.smarthome_id);
             const devices = homeData.devices || [];
+            const zones = homeData.zones || [];
 
-            // Filter only radiator devices (id_device starts with 'R')
-            const radiators = devices.filter(device => 
-              device.id_device && device.id_device.startsWith('R')
-            );
+            this.log(`[PAIR] Zones in home:`, JSON.stringify(zones));
 
-            this.log(`[PAIR] Found ${radiators.length} radiators in home ${home.label}`);
+            // Build zone lookup map (num_zone -> zone_label)
+            const zoneMap = {};
+            for (const zone of zones) {
+              zoneMap[zone.num_zone] = zone.zone_label || zone.label || `Zone ${zone.num_zone}`;
+            }
+            this.log(`[PAIR] Zone map:`, JSON.stringify(zoneMap));
+
+            this.log(`[PAIR] All devices in home:`, JSON.stringify(devices.map(d => ({
+              id_device: d.id_device,
+              nom_appareil: d.nom_appareil,
+              label_interface: d.label_interface,
+              num_zone: d.num_zone
+            }))));
+
+            // Include all heating devices - they can have various id_device formats:
+            // - "R1", "R2" etc for radiators
+            // - "C001-000" etc for newer devices
+            // Filter out lights (L) and outlets (P) but include everything else
+            const radiators = devices.filter(device => {
+              if (!device.id_device) return false;
+              const id = device.id_device.toUpperCase();
+              // Exclude lights and outlets
+              if (id.startsWith('L') || id.startsWith('P')) return false;
+              return true;
+            });
+
+            this.log(`[PAIR] Found ${radiators.length} heating devices in home ${home.label}`);
 
             // Map to Homey device format
             for (const device of radiators) {
+              // Build name from zone label + device label (like Home Assistant integration)
+              const zoneName = device.num_zone && zoneMap[device.num_zone] ? zoneMap[device.num_zone] : '';
+              const deviceLabel = device.label_interface || device.nom_appareil || '';
+              
+              // Construct name: prefer zone name, append device label if not generic "Heating"
+              let deviceName;
+              if (zoneName && deviceLabel && deviceLabel !== 'Heating') {
+                deviceName = `${zoneName} ${deviceLabel}`;
+              } else if (zoneName) {
+                deviceName = zoneName;
+              } else if (deviceLabel) {
+                deviceName = deviceLabel;
+              } else {
+                deviceName = `Heater ${device.id_device}`;
+              }
+              
+              this.log(`[PAIR] Adding device: ${deviceName} (${device.id_device}, zone: ${device.num_zone} = ${zoneName})`);
+              
               allDevices.push({
-                name: device.label_interface || `Radiator ${device.id_device}`,
+                name: deviceName,
                 data: {
                   id: `${home.smarthome_id}_${device.id_device}`,
                   homeId: home.smarthome_id,
@@ -92,7 +137,8 @@ class RadiatorDriver extends OAuth2Driver {
                 },
                 store: {
                   homeName: home.label,
-                  email: email
+                  email: email,
+                  zoneName: zoneName || ''
                 },
                 settings: {
                   comfortTemp: device.consigne_confort ? parseInt(device.consigne_confort) / 10 : 21,

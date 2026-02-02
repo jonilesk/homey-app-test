@@ -98,224 +98,46 @@ These constraints should be enforced in driver/device implementations and any Fl
 
 ## API Client Design
 
-### api/clevertouch-api.js
+### lib/CleverTouchOAuth2Client.js
 
 ```javascript
 'use strict';
 
+const { OAuth2Client, OAuth2Token } = require('homey-oauth2app');
 const fetch = require('node-fetch');
 
-const MODELS = {
-  purmo: { host: 'e3.lvi.eu', manufacturer: 'purmo' },
-  waltermeier: { host: 'www.smartcomfort.waltermeier.com', manufacturer: 'waltermeier' },
-  frico: { host: 'fricopfsmart.frico.se', manufacturer: 'frico' },
-  fenix: { host: 'v24.fenixgroup.eu', manufacturer: 'fenix' },
-  vogelundnoot: { host: 'e3.vogelundnoot.com', manufacturer: 'vogelundnoot' },
-  cordivari: { host: 'cordivarihome.com', manufacturer: 'cordivari' },
+// Brand configuration...
+const BRAND_CONFIG = {
+  'purmo': { host: 'e3.lvi.eu', realm: 'purmo' },
+  // ...
 };
 
-const CLIENT_ID = 'app-front';
-const API_PATH = '/api/v0.1/';
+class CleverTouchOAuth2Client extends OAuth2Client {
 
-class CleverTouchApi {
-  constructor(homey, modelId = 'purmo') {
-    this.homey = homey;
-    this.modelId = modelId;
-    this.model = MODELS[modelId];
-    this.accessToken = null;
-    this.refreshToken = null;
-    this.expiresAt = 0;
-  }
+  static CLIENT_ID = 'app-front';
 
-  get tokenUrl() {
-    return `https://auth.${this.model.host}/realms/${this.model.manufacturer}/protocol/openid-connect/token`;
-  }
-
-  get apiBase() {
-    return `https://${this.model.host}${API_PATH}`;
-  }
-
-  // Initialize from stored settings
-  async init() {
-    this.refreshToken = this.homey.settings.get('refresh_token');
-    this.modelId = this.homey.settings.get('model_id') || 'purmo';
-    this.model = MODELS[this.modelId];
+  // Handle password grant authentication
+  async onGetTokenByCredentials({ username, password }) {
+    // ... custom token fetch logic ...
     
-    if (this.refreshToken) {
-      try {
-        await this.refreshAccessToken();
-        return true;
-      } catch (error) {
-        this.homey.log('Failed to refresh token on init:', error);
-        return false;
-      }
-    }
-    return false;
-  }
-
-  // Authenticate with password
-  async authenticate(email, password) {
-    const response = await fetch(this.tokenUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        client_id: CLIENT_ID,
-        username: email,
-        password: password,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Authentication failed: ${response.status} ${error}`);
-    }
-
-    const data = await response.json();
-    this._handleTokenResponse(data);
-    
-    // Store credentials
-    this.homey.settings.set('refresh_token', this.refreshToken);
-    this.homey.settings.set('email', email);
-    this.homey.settings.set('model_id', this.modelId);
-    
-    return data;
-  }
-
-  // Refresh access token
-  async refreshAccessToken() {
-    if (!this.refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await fetch(this.tokenUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        client_id: CLIENT_ID,
-        refresh_token: this.refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Token refresh failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    this._handleTokenResponse(data);
-    
-    // Update stored refresh token
-    this.homey.settings.set('refresh_token', this.refreshToken);
-    
-    return data;
-  }
-
-  _handleTokenResponse(data) {
-    this.accessToken = data.access_token;
-    this.refreshToken = data.refresh_token || this.refreshToken;
-    this.expiresAt = Date.now() + (data.expires_in * 1000) - 30000; // 30s buffer
-  }
-
-  // Ensure valid token before API call
-  async _ensureValidToken() {
-    if (Date.now() >= this.expiresAt) {
-      await this.refreshAccessToken();
-    }
-  }
-
-  // Make authenticated API request
-  async _post(endpoint, payload = {}) {
-    await this._ensureValidToken();
-
-    const response = await fetch(`${this.apiBase}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.code?.code !== 1 && data.code?.code !== 8) {
-      throw new Error(`API error: ${data.code?.value || 'Unknown'}`);
-    }
-
-    return data.data;
-  }
-
-  // Get user data
-  async getUserData(email) {
-    return this._post('human/user/read/', { email });
-  }
-
-  // Get home data
-  async getHomeData(homeId) {
-    return this._post('human/smarthome/read/', { smarthome_id: homeId });
-  }
-
-  // Write device query
-  async writeQuery(homeId, queryParams) {
-    const payload = {
-      smarthome_id: homeId,
-      context: '1',
-      peremption: '15000',
-    };
-    
-    for (const [key, value] of Object.entries(queryParams)) {
-      payload[`query[${key}]`] = String(value);
-    }
-
-    return this._post('human/query/push/', payload);
-  }
-
-  // Set heat mode
-  async setHeatMode(homeId, deviceLocalId, mode) {
-    const modeMap = {
-      'Off': 0, 'Frost': 1, 'Eco': 2, 
-      'Comfort': 3, 'Program': 4, 'Boost': 5
-    };
-    
-    return this.writeQuery(homeId, {
-      id_device: deviceLocalId,
-      gv_mode: modeMap[mode],
-      nv_mode: modeMap[mode],
+    // Validate response and return OAuth2Token
+    return new OAuth2Token({
+       access_token: tokenData.access_token,
+       // ...
     });
   }
-
-  // Set temperature
-  async setTemperature(homeId, deviceLocalId, tempType, celsius) {
-    const fieldMap = {
-      comfort: 'consigne_confort',
-      eco: 'consigne_eco',
-      frost: 'consigne_hg',
-      boost: 'consigne_boost',
-    };
-    
-    const deviceUnits = Math.round(celsius * 10);
-    
-    return this.writeQuery(homeId, {
-      id_device: deviceLocalId,
-      [fieldMap[tempType]]: deviceUnits,
-    });
+  
+  // Custom API wrapper handling exit codes (Code 8 = Success)
+  async _apiCall(method, path, data) {
+    // ... retry logic with jitter ...
   }
-
-  // Set on/off state
-  async setOnOffState(homeId, deviceLocalId, isOn) {
-    return this.writeQuery(homeId, {
-      id_device: deviceLocalId,
-      on_off: isOn ? '1' : '0',
-    });
+  
+  async getDevices(homeId) {
+    // ... implementation ...
   }
 }
 
-module.exports = CleverTouchApi;
+module.exports = CleverTouchOAuth2Client;
 ```
 
 ---
@@ -325,52 +147,30 @@ module.exports = CleverTouchApi;
 ```javascript
 'use strict';
 
-const Homey = require('homey');
-const CleverTouchApi = require('./api/clevertouch-api');
+const { OAuth2App } = require('homey-oauth2app');
+const CleverTouchOAuth2Client = require('./lib/CleverTouchOAuth2Client');
 
-class CleverTouchApp extends Homey.App {
-  async onInit() {
-    this.log('CleverTouch app initializing...');
-    
-    // Initialize API client
-    this.api = new CleverTouchApi(this.homey);
-    
-    // Try to restore session
-    const hasSession = await this.api.init();
-    if (hasSession) {
-      this.log('Session restored from stored credentials');
-    } else {
-      this.log('No valid session, user needs to pair devices');
-    }
+class CleverTouchApp extends OAuth2App {
 
+  static OAUTH2_CLIENT = CleverTouchOAuth2Client;
+  static OAUTH2_DEBUG = true;
+
+  async onOAuth2Init() {
+    this.log('CleverTouch OAuth2 app initializing...');
+    
     // Register flow cards
     this._registerFlowCards();
-
-    this.log('CleverTouch app initialized');
   }
 
   _registerFlowCards() {
     // Action: Set heat mode
     this.homey.flow.getActionCard('set_heat_mode')
       .registerRunListener(async (args) => {
-        await args.device.setHeatMode(args.mode);
+        // ... (implementation)
+        await args.device.setCapabilityValue('clevertouch_heat_mode', args.mode);
       });
-
-    // Action: Activate boost
-    this.homey.flow.getActionCard('activate_boost')
-      .registerRunListener(async (args) => {
-        await args.device.activateBoost(args.duration, args.temperature);
-      });
-
-    // Condition: Is heating
-    this.homey.flow.getConditionCard('is_heating')
-      .registerRunListener(async (args) => {
-        return args.device.getCapabilityValue('clevertouch_heating_active');
-      });
-  }
-
-  getApi() {
-    return this.api;
+      
+    // ... (other cards)
   }
 }
 
@@ -386,39 +186,55 @@ module.exports = CleverTouchApp;
 ```javascript
 // driver.js
 
-class RadiatorDriver extends Homey.Driver {
-  async onPairListDevices() {
-    const api = this.homey.app.getApi();
-    
-    if (!api.accessToken) {
-      throw new Error('Please configure your CleverTouch account first');
-    }
+const { OAuth2Driver } = require('homey-oauth2app');
 
-    const email = this.homey.settings.get('email');
-    const userData = await api.getUserData(email);
+class RadiatorDriver extends OAuth2Driver {
+  
+  // Important: Must call super.onInit()
+  async onInit() {
+    await super.onInit();
+  }
+
+  async onPairListDevices({ oAuth2Client }) {
+    if (!oAuth2Client) throw new Error('No OAuth2 Client');
+
+    const email = oAuth2Client._email || this.homey.settings.get('clevertouch_email');
+    const userData = await oAuth2Client.getUser(email);
     
     const devices = [];
     
-    for (const homeInfo of userData.smarthomes) {
-      const homeData = await api.getHomeData(homeInfo.smarthome_id);
+    for (const home of userData.smarthomes) {
+      const homeData = await oAuth2Client.getHome(home.smarthome_id);
       
-      for (const deviceData of homeData.devices) {
-        // Filter for radiators only
-        if (deviceData.id_device?.startsWith('R')) {
-          devices.push({
-            name: `${deviceData.label_interface} (${homeData.label})`,
-            data: {
-              id: deviceData.id,
-              homeId: homeInfo.smarthome_id,
-              idLocal: deviceData.id_device,
-              zoneId: deviceData.num_zone,
-            },
-            store: {
-              label: deviceData.label_interface,
-              zoneName: homeData.zones?.find(z => z.num_zone === deviceData.num_zone)?.zone_label,
-            },
-          });
-        }
+      // Build zone map
+      const zoneMap = {};
+      (homeData.zones || []).forEach(z => zoneMap[z.num_zone] = z.zone_label);
+
+      for (const device of homeData.devices) {
+        const id = device.id_device?.toUpperCase();
+
+        // Filter: Exclude Lights (L) and Outlets (P)
+        if (id.startsWith('L') || id.startsWith('P')) continue;
+
+        // Smart Naming: Zone Name + Device Label
+        const zoneName = zoneMap[device.num_zone] || '';
+        const name = zoneName ? `${zoneName} ${device.label_interface}` : device.label_interface;
+
+        devices.push({
+          name: name,
+          data: {
+            id: `${home.smarthome_id}_${device.id_device}`,
+            homeId: home.smarthome_id,
+            deviceLocalId: device.id_device
+          },
+          store: {
+            homeName: home.label,
+            zoneName: zoneName,
+            // CRITICAL: Cache OAuth2 session IDs
+            OAuth2SessionId: oAuth2Client._sessionId,
+            OAuth2ConfigId: oAuth2Client._configId
+          }
+        });
       }
     }
 
@@ -468,14 +284,14 @@ For initial authentication, use a custom pairing view:
 ```javascript
 'use strict';
 
-const Homey = require('homey');
+const { OAuth2Device } = require('homey-oauth2app');
 
 const POLL_INTERVAL = 180000; // 3 minutes
 const QUICK_POLL_INTERVAL = 15000; // 15 seconds
 const QUICK_POLL_COUNT = 3;
 
-class RadiatorDevice extends Homey.Device {
-  async onInit() {
+class RadiatorDevice extends OAuth2Device {
+  async onOAuth2Init() {
     this.log('Radiator device initializing:', this.getName());
 
     this._quickPollCount = 0;

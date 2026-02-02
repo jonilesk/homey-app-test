@@ -9,7 +9,9 @@
     "target_temperature",
     "clevertouch_heat_mode",
     "clevertouch_heating_active",
-    "clevertouch_boost_remaining"
+    "clevertouch_zone",
+    "meter_power",
+    "clevertouch_error"
   ],
   "capabilitiesOptions": {
     "target_temperature": {

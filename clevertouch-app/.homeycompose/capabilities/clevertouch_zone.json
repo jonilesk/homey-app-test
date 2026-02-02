@@ -1,0 +1,15 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Zone",
+    "fi": "Vyöhyke"
+  },
+  "desc": {
+    "en": "Room/Zone where the radiator is located",
+    "fi": "Huone/vyöhyke jossa patteri sijaitsee"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/zone.svg"
+}

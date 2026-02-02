@@ -8,10 +8,11 @@ const POLL_INTERVAL_QUICK = 15 * 1000;     // 15 seconds after change
 const QUICK_POLL_COUNT = 3;                // Number of quick polls
 
 // Heat mode mappings
+// API values: 0=Off, 1=Eco, 2=Frost, 3=Comfort, 4=Program, 5=Boost
 const HEAT_MODE_TO_VALUE = {
   'Off': 0,
-  'Frost': 1,
-  'Eco': 2,
+  'Eco': 1,
+  'Frost': 2,
   'Comfort': 3,
   'Program': 4,
   'Boost': 5
@@ -19,8 +20,8 @@ const HEAT_MODE_TO_VALUE = {
 
 const VALUE_TO_HEAT_MODE = {
   0: 'Off',
-  1: 'Frost',
-  2: 'Eco',
+  1: 'Eco',
+  2: 'Frost',
   3: 'Comfort',
   4: 'Program',
   5: 'Boost'
@@ -33,6 +34,30 @@ class RadiatorDevice extends OAuth2Device {
    */
   async onOAuth2Init() {
     this.log('RadiatorDevice has been initialized');
+
+    // Ensure all required capabilities are present (migration support)
+    const requiredCapabilities = [
+      'measure_temperature',
+      'target_temperature',
+      'clevertouch_heat_mode',
+      'clevertouch_heating_active',
+      'clevertouch_zone',
+      'meter_power',
+      'clevertouch_error'
+    ];
+
+    for (const cap of requiredCapabilities) {
+      if (!this.hasCapability(cap)) {
+        this.log(`Adding missing capability: ${cap}`);
+        await this.addCapability(cap).catch(err => this.error(`Failed to add ${cap}:`, err));
+      }
+    }
+
+    // Remove deprecated capabilities
+    if (this.hasCapability('clevertouch_boost_remaining')) {
+      this.log('Removing deprecated capability: clevertouch_boost_remaining');
+      await this.removeCapability('clevertouch_boost_remaining').catch(err => this.error('Failed to remove boost_remaining:', err));
+    }
 
     // Register capability listeners
     this.registerCapabilityListener('target_temperature', this.onSetTemperature.bind(this));
@@ -68,26 +93,54 @@ class RadiatorDevice extends OAuth2Device {
       const devices = await oAuth2Client.getDevices(homeId);
 
       // Find our device
-      const deviceData = devices.find(d => d.local_id === deviceLocalId);
+      const deviceData = devices.find(d => d.id_device === deviceLocalId);
 
       if (!deviceData) {
         throw new Error('Device not found in home');
       }
 
+      // Log available fields for debugging
+      this.log(`Device data fields: ${Object.keys(deviceData).join(', ')}`);
+      this.log(`Raw temps: air=${deviceData.temperature_air}, sol=${deviceData.temperature_sol}`);
+      this.log(`Raw setpoints: comfort=${deviceData.consigne_confort}, eco=${deviceData.consigne_eco}, hg=${deviceData.consigne_hg}, boost=${deviceData.consigne_boost}`);
+      this.log(`Raw modes: gv_mode=${deviceData.gv_mode}, nv_mode=${deviceData.nv_mode}, on_off=${deviceData.on_off}`);
+      this.log(`Home modes: general_mode=${deviceData._homeGeneralMode}, holiday_mode=${deviceData._homeHolidayMode}`);
+
       // Track previous mode for boost detection
       const oldMode = this.getCapabilityValue('clevertouch_heat_mode');
 
-      // Update capabilities
-      if (deviceData.current_temp !== undefined) {
-        this._updateCapability('measure_temperature', deviceData.current_temp / 10);
+      // Helper function: API returns temps in Fahrenheit × 10, convert to Celsius
+      const toDeciCelsius = (deciF) => {
+        const fahrenheit = parseInt(deciF, 10) / 10;
+        const celsius = (fahrenheit - 32) * 5 / 9;
+        return Math.round(celsius * 10) / 10; // Round to 1 decimal
+      };
+
+      // Update current temperature (API returns temperature_air in Fahrenheit × 10)
+      if (deviceData.temperature_air !== undefined) {
+        const currentTemp = toDeciCelsius(deviceData.temperature_air);
+        this.log(`Current temperature: ${currentTemp}°C (raw: ${deviceData.temperature_air}°F×10)`);
+        this._updateCapability('measure_temperature', currentTemp);
       }
 
-      if (deviceData.target_temp !== undefined) {
-        this._updateCapability('target_temperature', deviceData.target_temp / 10);
+      // Update heat mode
+      // Home general_mode takes precedence over device gv_mode when set (1-5)
+      // general_mode=0 means "no home-wide override" so use device's gv_mode
+      let heatMode = 'Off';
+      let effectiveMode = deviceData.gv_mode;
+      
+      // If home general_mode is set to an active mode (1-5), use it instead of device mode
+      // 0 = no override, 1+ = active mode override
+      const homeGeneralMode = parseInt(deviceData._homeGeneralMode, 10);
+      if (!isNaN(homeGeneralMode) && homeGeneralMode >= 1 && homeGeneralMode <= 5) {
+        effectiveMode = homeGeneralMode;
+        this.log(`Using home general_mode: ${homeGeneralMode} instead of device gv_mode: ${deviceData.gv_mode}`);
       }
-
-      if (deviceData.gv_mode !== undefined) {
-        const heatMode = VALUE_TO_HEAT_MODE[deviceData.gv_mode] || 'Off';
+      
+      if (effectiveMode !== undefined) {
+        const modeValue = parseInt(effectiveMode, 10);
+        heatMode = VALUE_TO_HEAT_MODE[modeValue] || 'Off';
+        this.log(`Heat mode: ${heatMode} (effective: ${effectiveMode}, device gv_mode: ${deviceData.gv_mode}, home general: ${homeGeneralMode})`);
         this._updateCapability('clevertouch_heat_mode', heatMode);
 
         // Check if boost ended
@@ -99,17 +152,44 @@ class RadiatorDevice extends OAuth2Device {
         }
       }
 
-      if (deviceData.heating_up !== undefined) {
-        const heatingActive = deviceData.heating_up === true || deviceData.heating_up === 1;
-        this._updateCapability('clevertouch_heating_active', heatingActive);
+      // Calculate target temperature based on current mode
+      // Each mode has its own setpoint: consigne_confort, consigne_eco, consigne_hg, consigne_boost
+      let targetTemp = null;
+      switch (heatMode) {
+        case 'Comfort':
+          targetTemp = deviceData.consigne_confort;
+          break;
+        case 'Eco':
+          targetTemp = deviceData.consigne_eco;
+          break;
+        case 'Frost':
+          targetTemp = deviceData.consigne_hg;
+          break;
+        case 'Boost':
+          targetTemp = deviceData.consigne_boost;
+          break;
+        case 'Program':
+          // Program mode uses scheduled setpoints, show comfort as reference
+          targetTemp = deviceData.consigne_confort;
+          break;
+        case 'Off':
+        default:
+          // Off mode - show frost protection setpoint as minimum
+          targetTemp = deviceData.consigne_hg;
+          break;
       }
 
-      // Boost remaining time (if available in API response)
-      if (deviceData.boost_ends_at) {
-        const remaining = Math.max(0, (deviceData.boost_ends_at - Date.now()) / 1000 / 60);
-        this._updateCapability('clevertouch_boost_remaining', Math.round(remaining));
-      } else if (this.getCapabilityValue('clevertouch_heat_mode') !== 'Boost') {
-        this._updateCapability('clevertouch_boost_remaining', 0);
+      if (targetTemp !== null && targetTemp !== undefined) {
+        const targetTempC = toDeciCelsius(targetTemp);
+        this.log(`Target temperature: ${targetTempC}°C (raw: ${targetTemp}°F×10, mode: ${heatMode})`);
+        this._updateCapability('target_temperature', targetTempC);
+      }
+
+      // Update heating active status (API returns string "0" or "1")
+      if (deviceData.heating_up !== undefined) {
+        const heatingActive = String(deviceData.heating_up) === '1';
+        this.log(`Heating active: ${heatingActive} (raw: ${deviceData.heating_up})`);
+        this._updateCapability('clevertouch_heating_active', heatingActive);
       }
 
       // Mark device as available if it was unavailable
@@ -119,11 +199,12 @@ class RadiatorDevice extends OAuth2Device {
       }
 
     } catch (error) {
-      this.error('Poll failed:', error.message);
+      const errorMsg = error?.message || String(error) || 'Unknown error';
+      this.error('Poll failed:', errorMsg);
 
       // Only mark unavailable if was previously available
       if (this.getAvailable()) {
-        await this.setUnavailable(error.message);
+        await this.setUnavailable(errorMsg);
         this.log('Device marked unavailable due to error');
       }
       // Continue polling - will retry on next interval
@@ -163,15 +244,19 @@ class RadiatorDevice extends OAuth2Device {
 
     const { homeId, deviceLocalId } = this.getData();
 
+    // Convert Celsius to Fahrenheit × 10 for API
+    const fahrenheit = (value * 9 / 5) + 32;
+    const deciFahrenheit = Math.round(fahrenheit * 10);
+
     try {
       await this.oAuth2Client.setDeviceTemperature(
         homeId,
         deviceLocalId,
         tempType,
-        Math.round(value * 10)  // Convert to device units (×10)
+        deciFahrenheit
       );
 
-      this.log(`Temperature set successfully to ${value}°C (${tempType} preset)`);
+      this.log(`Temperature set successfully to ${value}°C (${deciFahrenheit}°F×10, ${tempType} preset)`);
 
       // Quick poll after change
       this._scheduleQuickPoll();
@@ -221,6 +306,12 @@ class RadiatorDevice extends OAuth2Device {
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log('Settings changed:', changedKeys);
 
+    // Helper: convert Celsius to Fahrenheit × 10 for API
+    const toDeciFahrenheit = (celsius) => {
+      const fahrenheit = (celsius * 9 / 5) + 32;
+      return Math.round(fahrenheit * 10);
+    };
+
     // Handle temperature preset changes
     if (changedKeys.includes('comfortTemp') ||
         changedKeys.includes('ecoTemp') ||
@@ -235,9 +326,9 @@ class RadiatorDevice extends OAuth2Device {
           homeId,
           deviceLocalId,
           {
-            comfort: Math.round(newSettings.comfortTemp * 10),
-            eco: Math.round(newSettings.ecoTemp * 10),
-            frost: Math.round(newSettings.frostTemp * 10)
+            comfort: toDeciFahrenheit(newSettings.comfortTemp),
+            eco: toDeciFahrenheit(newSettings.ecoTemp),
+            frost: toDeciFahrenheit(newSettings.frostTemp)
           }
         );
 

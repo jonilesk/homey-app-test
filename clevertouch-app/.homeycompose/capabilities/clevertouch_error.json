@@ -1,0 +1,16 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Error",
+    "fi": "Virhe"
+  },
+  "desc": {
+    "en": "Radiator has an error",
+    "fi": "Patterissa on virhe"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/error.svg",
+  "insights": false
+}
