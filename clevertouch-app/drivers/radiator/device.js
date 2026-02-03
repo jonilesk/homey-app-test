@@ -42,7 +42,7 @@ class RadiatorDevice extends OAuth2Device {
       'clevertouch_heat_mode',
       'clevertouch_heating_active',
       'clevertouch_zone',
-      'meter_power',
+      'measure_power',
       'clevertouch_error'
     ];
 
@@ -57,6 +57,10 @@ class RadiatorDevice extends OAuth2Device {
     if (this.hasCapability('clevertouch_boost_remaining')) {
       this.log('Removing deprecated capability: clevertouch_boost_remaining');
       await this.removeCapability('clevertouch_boost_remaining').catch(err => this.error('Failed to remove boost_remaining:', err));
+    }
+    if (this.hasCapability('meter_power')) {
+      this.log('Removing deprecated capability: meter_power (replaced by measure_power)');
+      await this.removeCapability('meter_power').catch(err => this.error('Failed to remove meter_power:', err));
     }
 
     // Register capability listeners
@@ -202,7 +206,7 @@ class RadiatorDevice extends OAuth2Device {
       const heatingActive = String(deviceData.heating_up) === '1';
       const powerWatts = parseInt(deviceData.puissance_app, 10) || 0;
       const currentPower = heatingActive ? powerWatts : 0;
-      this._updateCapability('meter_power', currentPower);
+      this._updateCapability('measure_power', currentPower);
       this.log(`Power: ${currentPower}W (device rating: ${powerWatts}W, heating: ${heatingActive})`);
 
       // Update error status

@@ -305,7 +305,8 @@ class CleverTouchOAuth2Client extends OAuth2Client {
       'query[gv_mode]': String(mode),
       'query[nv_mode]': String(mode)
     });
-    if (response.code?.code !== 8) {
+    const code = parseInt(response.code?.code);
+    if (code !== 1 && code !== 8) {
       throw new Error(`API error: ${response.code?.value || 'Unknown error'}`);
     }
     return response;
@@ -326,7 +327,8 @@ class CleverTouchOAuth2Client extends OAuth2Client {
       'query[id_device]': deviceLocalId,
       [`query[${paramName}]`]: String(value)
     });
-    if (response.code?.code !== 8) {
+    const code = parseInt(response.code?.code);
+    if (code !== 1 && code !== 8) {
       throw new Error(`API error: ${response.code?.value || 'Unknown error'}`);
     }
     return response;
@@ -354,7 +356,8 @@ class CleverTouchOAuth2Client extends OAuth2Client {
     }
 
     const response = await this._apiCall('POST', '/human/query/push/', params);
-    if (response.code?.code !== 8) {
+    const code = parseInt(response.code?.code);
+    if (code !== 1 && code !== 8) {
       throw new Error(`API error: ${response.code?.value || 'Unknown error'}`);
     }
     return response;

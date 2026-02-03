@@ -10,7 +10,7 @@
     "clevertouch_heat_mode",
     "clevertouch_heating_active",
     "clevertouch_zone",
-    "meter_power",
+    "measure_power",
     "clevertouch_error"
   ],
   "capabilitiesOptions": {
