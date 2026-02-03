@@ -1,0 +1,20 @@
+{
+  "name": "com.example.energy-gap-analyzer",
+  "version": "1.0.0",
+  "description": "Homey app that analyzes the gap between total home energy consumption and tracked devices",
+  "main": "app.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "homey-api": "^3.16.0"
+  },
+  "devDependencies": {
+    "homey": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

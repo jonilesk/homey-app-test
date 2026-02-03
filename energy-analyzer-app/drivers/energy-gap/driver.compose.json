@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en": "Energy Gap Analyzer"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "power_total",
+    "power_tracked",
+    "power_untracked",
+    "untracked_percentage",
+    "tracked_device_count"
+  ],
+  "platforms": ["local"],
+  "connectivity": ["cloud"],
+  "images": {
+    "small": "/drivers/energy-gap/assets/icon.svg",
+    "large": "/drivers/energy-gap/assets/icon.svg",
+    "xlarge": "/drivers/energy-gap/assets/icon.svg"
+  },
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

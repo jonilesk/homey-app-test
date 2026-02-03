@@ -1,0 +1,24 @@
+{
+  "capabilities": {
+    "power_total": {
+      "title": "Total Home"
+    },
+    "power_tracked": {
+      "title": "Tracked Devices"
+    },
+    "power_untracked": {
+      "title": "Untracked (Gray)"
+    },
+    "untracked_percentage": {
+      "title": "Untracked %"
+    },
+    "tracked_device_count": {
+      "title": "Devices Reporting"
+    }
+  },
+  "drivers": {
+    "energy-gap": {
+      "name": "Energy Gap Analyzer"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Tracked Devices"
+  },
+  "units": {
+    "en": "W"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/icon.svg"
+}

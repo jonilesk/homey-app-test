@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Total Home Power"
+  },
+  "units": {
+    "en": "W"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/icon.svg"
+}
