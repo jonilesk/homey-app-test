@@ -189,12 +189,20 @@ class RadiatorDevice extends OAuth2Device {
         this._updateCapability('target_temperature', targetTempC);
       }
 
-      // Update heating active status (API returns string "0" or "1")
-      if (deviceData.heating_up !== undefined) {
-        const heatingActive = String(deviceData.heating_up) === '1';
-        this.log(`Heating active: ${heatingActive} (raw: ${deviceData.heating_up})`);
-        this._updateCapability('clevertouch_heating_active', heatingActive);
-      }
+      // Determine heating status by comparing temperatures (more reliable than heating_up field)
+      // Device is heating when current temp < target temp AND device is in an active mode
+      const currentTempC = deviceData.temperature_air !== undefined ? toDeciCelsius(deviceData.temperature_air) : null;
+      const targetTempC = targetTemp !== null ? toDeciCelsius(targetTemp) : null;
+      const isActiveMode = heatMode !== 'Off';
+      
+      // Calculate heating based on temperature difference
+      // Also check API's heating_up field as secondary indicator
+      const apiHeatingUp = String(deviceData.heating_up) === '1';
+      const tempBasedHeating = isActiveMode && currentTempC !== null && targetTempC !== null && currentTempC < targetTempC;
+      const heatingActive = tempBasedHeating || apiHeatingUp;
+      
+      this.log(`Heating active: ${heatingActive} (temp-based: ${tempBasedHeating}, api: ${apiHeatingUp}, current: ${currentTempC}°C, target: ${targetTempC}°C, mode: ${heatMode})`);
+      this._updateCapability('clevertouch_heating_active', heatingActive);
 
       // Update zone name
       if (deviceData._zoneName) {
@@ -203,7 +211,6 @@ class RadiatorDevice extends OAuth2Device {
 
       // Update power consumption (watts when heating, 0 when idle)
       // puissance_app contains the device wattage rating
-      const heatingActive = String(deviceData.heating_up) === '1';
       const powerWatts = parseInt(deviceData.puissance_app, 10) || 0;
       const currentPower = heatingActive ? powerWatts : 0;
       this._updateCapability('measure_power', currentPower);

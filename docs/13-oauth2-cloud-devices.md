@@ -808,6 +808,43 @@ this._updateCapability('custom_error', hasError);
 
 ## Common Pitfalls
 
+### ❌ Don't: Compare API response codes as-is
+```javascript
+// BAD: API returns "8" (string), comparing to 8 (number) fails!
+if (response.code?.code !== 8) {
+  throw new Error('API error');
+}
+```
+
+### ✅ Do: Parse response codes to integers
+```javascript
+// GOOD: Parse string to number before comparing
+const code = parseInt(response.code?.code);
+if (code !== 1 && code !== 8) {
+  throw new Error('API error');
+}
+```
+
+---
+
+### ❌ Don't: Use wrong power capability
+```javascript
+// BAD: meter_power is cumulative energy (kWh) - not instantaneous!
+this._updateCapability('meter_power', currentPowerWatts);  // Shows "0 kWh"
+```
+
+### ✅ Do: Use measure_power for instantaneous watts
+```javascript
+// GOOD: measure_power shows current power draw in Watts
+this._updateCapability('measure_power', currentPowerWatts);  // Shows "500 W"
+```
+
+**Capability reference:**
+- `meter_power` = cumulative energy consumption (kWh) - for energy tracking
+- `measure_power` = instantaneous power draw (W) - for current status
+
+---
+
 ### ❌ Don't: Assume temperature units
 ```javascript
 // BAD: Assumes Celsius × 10
@@ -952,6 +989,44 @@ try {
   }
   throw error;
 }
+```
+
+## Deployment
+
+### Development Mode vs Installed App
+
+| Command | Purpose | Persistence |
+|---------|---------|-------------|
+| `homey app run` | Development/debugging | Stops when terminal closes |
+| `homey app install` | Permanent installation | Survives reboots |
+
+### Development Workflow
+
+```bash
+# Development - run with live logs (stops when you Ctrl+C)
+homey app run
+
+# When ready - install permanently on Homey
+homey app install
+
+# Update after changes
+homey app install  # Reinstalls with new code
+```
+
+### What `homey app install` Does
+- Packages your app (validates, bundles)
+- Uploads to Homey
+- Installs and starts the app
+- App survives Homey reboots
+- No terminal connection needed
+
+### Checking Installed App
+```bash
+# List installed apps
+homey app list
+
+# View app logs (even when installed)
+homey app log
 ```
 
 ## Reference Implementation

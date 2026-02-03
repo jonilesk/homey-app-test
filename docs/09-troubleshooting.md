@@ -69,3 +69,19 @@ this.log(`Raw temp: ${deviceData.temperature_air} → ${convertedTemp}°C`);
 this.log(`Raw mode: ${deviceData.gv_mode} → displayed as: ${modeString}`);
 // Compare logged values to official app/website
 ```
+
+### API response code comparison failures
+Many APIs return codes as strings (`"8"`) not numbers (`8`):
+```javascript
+// BAD: String "8" !== Number 8
+if (response.code?.code !== 8) { throw new Error('Failed'); }
+
+// GOOD: Parse to int first
+const code = parseInt(response.code?.code);
+if (code !== 1 && code !== 8) { throw new Error('Failed'); }
+```
+
+### Wrong power/energy capability
+- `meter_power` = cumulative kWh (energy meter) - shows "0 kWh"
+- `measure_power` = instantaneous Watts - shows "500 W"
+Use `measure_power` for current power draw status.

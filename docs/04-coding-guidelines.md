@@ -19,6 +19,39 @@
 - Never log tokens or secrets; redact Authorization headers and OAuth codes.
 - For OAuth2, prefer `homey-oauth2app` for token lifecycle and API calls.
 
+### Common API Gotchas
+
+**Response codes as strings:**
+Many APIs return numeric codes as strings. Always parse before comparing:
+```javascript
+// BAD: "8" !== 8 (string vs number)
+if (response.code !== 8) { ... }
+
+// GOOD: Parse first
+const code = parseInt(response.code);
+if (code !== 8) { ... }
+```
+
+**Nested vs flat data structures:**
+Real-time data often lives in nested structures:
+```javascript
+// Flat array might be cached/stale
+const devices = apiResponse.devices;
+
+// Nested data often has real-time values
+for (const zone of apiResponse.zones) {
+  for (const device of zone.devices) {
+    // Fresh data here
+  }
+}
+```
+
+**Temperature unit assumptions:**
+Don't assume units - verify with the official app:
+- Some APIs use Celsius × 10
+- Some APIs use **Fahrenheit × 10** (easy to confuse!)
+- Log raw values and compare to official app to determine
+
 References:
 - https://apps.developer.homey.app/cloud/oauth2
 - https://athombv.github.io/node-homey-oauth2app

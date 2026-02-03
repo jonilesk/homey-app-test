@@ -6,18 +6,36 @@
 Recommended for rapid iteration on Homey Pro (2023):
 ```bash
 homey app run --remote
+# or simply:
+homey app run
 ```
 
 **Behavior**
 - Uploads your app to Homey and starts it.
 - Streams logs to your terminal while the command is running.
-- Stopping the command typically stops/uninstalls the dev session app (intended for fast loops).
+- **Stops when you close the terminal or press Ctrl+C**
+- Devices will show "unavailable" when the dev session ends
 
 ### Install for longer testing / permanent use
 Use when you want the app to persist across reboots without CLI:
 ```bash
 homey app install
 ```
+
+**Behavior**
+- Packages, validates, and uploads your app permanently
+- App keeps running even after terminal closes
+- Survives Homey reboots
+- No live log streaming (use `homey app log` to view logs)
+
+**Critical difference:**
+| Aspect | `homey app run` | `homey app install` |
+|--------|-----------------|---------------------|
+| Persistence | Temporary | Permanent |
+| Terminal required | Yes (running) | No |
+| Live logs | Yes (in terminal) | No (use `homey app log`) |
+| Survives reboot | No | Yes |
+| Use case | Development | Production/testing |
 
 This is the recommended method for:
 - Personal/private apps you want to use daily

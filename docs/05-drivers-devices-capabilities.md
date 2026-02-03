@@ -25,6 +25,43 @@
   - `this.setUnavailable('...')` when upstream is down
   - `this.setAvailable()` when recovered
 
+### Power & Energy Capabilities - Common Confusion!
+
+| Capability | Type | Unit | Use Case |
+|------------|------|------|----------|
+| `measure_power` | Sensor | W (Watts) | Current power draw (instantaneous) |
+| `meter_power` | Meter | kWh | Cumulative energy consumption |
+
+```javascript
+// Show current power draw (500W when heating, 0W when idle)
+this._updateCapability('measure_power', isHeating ? powerWatts : 0);
+
+// Show cumulative energy (increments over time)
+this._updateCapability('meter_power', totalKwhConsumed);
+```
+
+### Dynamic Capability Management
+
+Add/remove capabilities at runtime for device migration:
+
+```javascript
+async onInit() {
+  // Add new capabilities without re-pairing
+  const requiredCapabilities = ['measure_temperature', 'measure_power', 'custom_mode'];
+  
+  for (const cap of requiredCapabilities) {
+    if (!this.hasCapability(cap)) {
+      this.log(`Adding missing capability: ${cap}`);
+      await this.addCapability(cap).catch(err => this.error(`Failed to add ${cap}:`, err));
+    }
+  }
+
+  // Remove deprecated capabilities
+  if (this.hasCapability('old_deprecated_capability')) {
+    await this.removeCapability('old_deprecated_capability');
+  }
+}
+
 ## Pairing best practices
 - Pairing must be resilient:
   - validate network connectivity
