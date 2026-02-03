@@ -92,38 +92,82 @@ smarthome_id={home_id}
   "data": {
     "smarthome_id": "home_123",
     "label": "My Home",
+    "general_mode": 0,
+    "holiday_mode": 0,
     "zones": [
       {
         "num_zone": "1",
-        "zone_label": "Living Room"
+        "zone_label": "Living Room",
+        "devices": [...]
       }
     ],
-    "devices": [
-      {
-        "id": "device_456",
-        "id_device": "R1",
-        "label_interface": "Radiator 1",
-        "num_zone": "1",
-        "gv_mode": "2",
-        "heating_up": "0",
-        "consigne_confort": "210",
-        "consigne_eco": "180",
-        "consigne_hg": "70",
-        "consigne_boost": "250",
-        "sonde_temperature": "195",
-        "time_boost": "3600",
-        "time_boost_format_chrono": {
-          "d": "0",
-          "h": "0",
-          "m": "30",
-          "s": "0"
-        }
-      }
-    ]
+    "devices": [...]
   },
   "parameters": {}
 }
 ```
+
+**⚠️ CRITICAL: Data Source Selection**
+
+The response contains devices in TWO places:
+1. `data.devices[]` - Flat array (may contain **STALE/CACHED** data!)
+2. `data.zones[].devices[]` - Nested in zones (**REAL-TIME** data!)
+
+**Always use `zones[].devices[]` for current temperatures and status!**
+
+```javascript
+// WRONG: Using flat devices array (stale temperatures)
+const devices = responseData.devices;
+
+// CORRECT: Extract from zones for real-time data
+const devices = [];
+for (const zone of responseData.zones || []) {
+  for (const device of zone.devices || []) {
+    device._zoneName = zone.zone_label;
+    devices.push(device);
+  }
+}
+```
+
+**Home-Level Mode Fields**:
+- `general_mode` - Global mode override (0=none, 1-5=active mode)
+- `holiday_mode` - Holiday mode status
+
+When `general_mode` is 1-5, it overrides all device-level `gv_mode` values.
+
+**Device Fields** (in `zones[].devices[]`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Global unique device ID |
+| `id_device` | string | Local device ID (e.g., "R1") |
+| `nom_appareil` | string | Device model name |
+| `temperature_air` | int | Current temperature (**Fahrenheit × 10**) |
+| `temperature_sol` | int | Floor temperature (**Fahrenheit × 10**) |
+| `gv_mode` | string | Current mode (0-5, see below) |
+| `nv_mode` | string | Target mode |
+| `heating_up` | string | Heating status ("0" or "1") |
+| `consigne_confort` | int | Comfort setpoint (**Fahrenheit × 10**) |
+| `consigne_eco` | int | Eco setpoint (**Fahrenheit × 10**) |
+| `consigne_hg` | int | Frost setpoint (**Fahrenheit × 10**) |
+| `consigne_boost` | int | Boost setpoint (**Fahrenheit × 10**) |
+| `puissance_app` | int | Device power rating (Watts) |
+| `error_code` | int | Error code (0 = no error) |
+| `time_boost` | int | Boost duration (seconds) |
+
+**⚠️ Temperature Units:** All temperatures are in **Fahrenheit × 10**, NOT Celsius!
+- API value 470 = 47.0°F = 8.3°C
+- API value 680 = 68.0°F = 20.0°C
+
+**Mode Values** (gv_mode/nv_mode):
+| Value | Mode |
+|-------|------|
+| 0 | Off |
+| 1 | Eco |
+| 2 | Frost (Anti-Freeze) |
+| 3 | Comfort |
+| 4 | Program |
+| 5 | Boost |
 
 ---
 

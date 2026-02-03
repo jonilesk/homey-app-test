@@ -27,6 +27,82 @@ your-app/
 
 ## OAuth2Client Implementation
 
+### Token Persistence Issue
+
+**Critical Learning:** The `homey-oauth2app` library doesn't always persist tokens reliably across app restarts. Implement backup storage:
+
+```javascript
+async onGetTokenByCredentials({ username, password }) {
+  // ... get token from API ...
+
+  // IMPORTANT: Store tokens as backup in homey.settings
+  if (tokenData.access_token) {
+    this.homey.settings.set('myapp_access_token', tokenData.access_token);
+  }
+  if (tokenData.refresh_token) {
+    this.homey.settings.set('myapp_refresh_token', tokenData.refresh_token);
+  }
+  
+  // Store expiration timestamp for proactive refresh
+  const expiresAt = Date.now() + (tokenData.expires_in * 1000);
+  this.homey.settings.set('myapp_token_expires_at', expiresAt);
+
+  return new OAuth2Token({ ... });
+}
+
+async onRefreshToken() {
+  // Try to get refresh token from token object first, then from settings backup
+  let refreshToken = this.getToken()?.refresh_token;
+  
+  if (!refreshToken) {
+    this.log('No refresh token in token object, trying settings backup...');
+    refreshToken = this.homey.settings.get('myapp_refresh_token');
+  }
+  
+  // ... refresh token ...
+  
+  // Update backup tokens after refresh
+  if (tokenData.access_token) {
+    this.homey.settings.set('myapp_access_token', tokenData.access_token);
+  }
+  if (tokenData.refresh_token) {
+    this.homey.settings.set('myapp_refresh_token', tokenData.refresh_token);
+  }
+}
+
+// In API calls, fall back to settings backup
+async _apiCall(method, path, data) {
+  let accessToken = this.getToken()?.access_token;
+  if (!accessToken) {
+    accessToken = this.homey.settings.get('myapp_access_token');
+  }
+  // ... make API call ...
+}
+```
+
+### Proactive Token Refresh
+
+Refresh tokens before they expire to avoid failed API calls:
+
+```javascript
+const TOKEN_REFRESH_THRESHOLD = 0.8; // Refresh at 80% of lifetime
+
+async _ensureValidToken() {
+  const expiresAt = this.homey.settings.get('myapp_token_expires_at');
+  const now = Date.now();
+  const timeUntilExpiry = expiresAt - now;
+  const totalLifetime = 300000; // 5 min default
+  const refreshThreshold = totalLifetime * (1 - TOKEN_REFRESH_THRESHOLD);
+
+  if (timeUntilExpiry < refreshThreshold) {
+    this.log('Token near expiration, proactively refreshing...');
+    const newToken = await this.onRefreshToken();
+    this.setToken(newToken);
+    await this.save();
+  }
+}
+```
+
 ### Basic Pattern
 
 ```javascript
@@ -372,6 +448,113 @@ async onSettings({ oldSettings, newSettings, changedKeys }) {
 
 ## Unit Conversion Patterns
 
+### Temperature Units - VERIFY WITH ACTUAL API!
+
+**Critical Learning:** Don't assume temperature encoding! Some APIs return:
+- Celsius × 10 (common)
+- **Fahrenheit × 10** (CleverTouch uses this!)
+- Raw Celsius/Fahrenheit
+
+Always verify with real data by comparing API values to the official app/website:
+
+```javascript
+// Example: CleverTouch API returns Fahrenheit × 10
+// API: 470 → 47°F → 8.3°C (matches web portal showing 8.3°C)
+
+const toDeciCelsius = (deciF) => {
+  const fahrenheit = parseInt(deciF, 10) / 10;
+  const celsius = (fahrenheit - 32) * 5 / 9;
+  return Math.round(celsius * 10) / 10; // Round to 1 decimal
+};
+
+// When setting temperature, convert back
+const toDeciFahrenheit = (celsius) => {
+  const fahrenheit = (celsius * 9 / 5) + 32;
+  return Math.round(fahrenheit * 10);
+};
+```
+
+### Mode Mapping - VERIFY WITH ACTUAL API!
+
+**Critical Learning:** Mode values often differ from documentation or assumptions:
+
+```javascript
+// WRONG assumption (from initial docs):
+// 0=Off, 1=Frost, 2=Eco, 3=Comfort
+
+// ACTUAL CleverTouch API (verified by comparing with web portal):
+// 0=Off, 1=Eco, 2=Frost, 3=Comfort, 4=Program, 5=Boost
+
+const VALUE_TO_HEAT_MODE = {
+  0: 'Off',
+  1: 'Eco',      // Was incorrectly assumed to be Frost!
+  2: 'Frost',    // Was incorrectly assumed to be Eco!
+  3: 'Comfort',
+  4: 'Program',
+  5: 'Boost'
+};
+```
+
+**How to verify:** Compare what the API returns to what the official app shows. If API returns mode=2 and the app shows "Frost Protection", then 2=Frost.
+
+### Hierarchical Data Structures
+
+**Critical Learning:** Real-time data may be nested differently than summary data:
+
+```javascript
+// API response structure:
+{
+  "devices": [...],          // Flat array - may contain STALE data!
+  "zones": [
+    {
+      "zone_label": "Kitchen",
+      "devices": [...]       // Nested array - has REAL-TIME data!
+    }
+  ]
+}
+
+// WRONG: Using flat devices array (stale temperatures)
+const devices = homeData.devices;
+
+// CORRECT: Extract from zones for real-time data
+async getDevices(homeId) {
+  const homeData = await this.getHome(homeId);
+  const devices = [];
+  
+  for (const zone of homeData.zones || []) {
+    for (const device of zone.devices || []) {
+      device._zoneName = zone.zone_label;  // Preserve zone info
+      devices.push(device);
+    }
+  }
+  
+  return devices;
+}
+```
+
+### Home-Level Mode Overrides
+
+Some systems have global modes that override device-level settings:
+
+```javascript
+async poll() {
+  const deviceData = await this.oAuth2Client.getDeviceData(this.getData().id);
+  
+  // Home general_mode may override device gv_mode
+  let effectiveMode = deviceData.gv_mode;
+  
+  const homeGeneralMode = parseInt(deviceData._homeGeneralMode, 10);
+  // 0 = no override, 1+ = active mode override
+  if (!isNaN(homeGeneralMode) && homeGeneralMode >= 1 && homeGeneralMode <= 5) {
+    effectiveMode = homeGeneralMode;
+    this.log(`Using home mode ${homeGeneralMode} instead of device mode ${deviceData.gv_mode}`);
+  }
+  
+  const heatMode = VALUE_TO_HEAT_MODE[effectiveMode];
+  this._updateCapability('heat_mode', heatMode);
+}
+```
+
 ### Temperature (×10 encoding)
 
 Some APIs encode temperatures as integers (×10):
@@ -463,6 +646,79 @@ throw new Error(this.homey.__('errors.set_temperature_failed'));
 
 ## Custom Capabilities
 
+### Capability Migration for Existing Devices
+
+Add new capabilities to existing devices without requiring re-pairing:
+
+```javascript
+async onOAuth2Init() {
+  // Ensure all required capabilities are present (migration support)
+  const requiredCapabilities = [
+    'measure_temperature',
+    'target_temperature',
+    'custom_heat_mode',
+    'custom_heating_active',
+    'custom_zone',           // NEW capability
+    'meter_power',           // NEW: built-in power capability
+    'custom_error'           // NEW capability
+  ];
+
+  for (const cap of requiredCapabilities) {
+    if (!this.hasCapability(cap)) {
+      this.log(`Adding missing capability: ${cap}`);
+      await this.addCapability(cap).catch(err => this.error(`Failed to add ${cap}:`, err));
+    }
+  }
+
+  // Remove deprecated capabilities
+  if (this.hasCapability('old_capability')) {
+    this.log('Removing deprecated capability');
+    await this.removeCapability('old_capability').catch(err => this.error('Failed to remove:', err));
+  }
+}
+```
+
+### Useful Additional Capabilities
+
+**Zone/Room Name** (string sensor):
+```json
+{
+  "type": "string",
+  "title": { "en": "Zone" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}
+```
+
+**Power Consumption** (use built-in `meter_power`):
+```javascript
+// Show power when heating, 0 when idle
+const heatingActive = String(deviceData.heating_up) === '1';
+const powerWatts = parseInt(deviceData.puissance_app, 10) || 0;
+const currentPower = heatingActive ? powerWatts : 0;
+this._updateCapability('meter_power', currentPower);
+```
+
+**Error Indicator** (boolean sensor):
+```json
+{
+  "type": "boolean",
+  "title": { "en": "Error" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false
+}
+```
+
+```javascript
+// Check error code from API
+const errorCode = parseInt(deviceData.error_code, 10) || 0;
+const hasError = errorCode !== 0;
+this._updateCapability('custom_error', hasError);
+```
+
 ### Enum Capability (Mode Selector)
 
 **.homeycompose/capabilities/custom_mode.json**:
@@ -517,6 +773,13 @@ throw new Error(this.homey.__('errors.set_temperature_failed'));
 - [ ] Login fails gracefully with invalid credentials
 - [ ] Token automatically refreshes after 5+ minutes
 - [ ] App re-authenticates if refresh token expires
+- [ ] **Tokens persist across app restarts (check settings backup)**
+
+### Data Accuracy
+- [ ] **Temperature matches official app/website exactly**
+- [ ] **Mode matches official app (verify mapping is correct)**
+- [ ] Setpoints/targets match official app
+- [ ] Status indicators match reality (heating on/off)
 
 ### Device Operations
 - [ ] Pairing lists all available devices
@@ -544,6 +807,74 @@ throw new Error(this.homey.__('errors.set_temperature_failed'));
 - [ ] Retry logic works (check logs)
 
 ## Common Pitfalls
+
+### ❌ Don't: Assume temperature units
+```javascript
+// BAD: Assumes Celsius × 10
+const temp = apiValue / 10;  // WRONG if API uses Fahrenheit!
+```
+
+### ✅ Do: Verify with actual data
+```javascript
+// GOOD: Compare API value with official app to determine unit
+// If API=470 and official app shows 8.3°C, then it's Fahrenheit×10
+const toDeciCelsius = (deciF) => {
+  const fahrenheit = parseInt(deciF, 10) / 10;
+  return Math.round((fahrenheit - 32) * 5 / 9 * 10) / 10;
+};
+```
+
+---
+
+### ❌ Don't: Trust API documentation for mode values
+```javascript
+// BAD: Using assumed mapping from docs
+const modes = { 1: 'Frost', 2: 'Eco' };  // May be WRONG!
+```
+
+### ✅ Do: Verify mode mapping with real data
+```javascript
+// GOOD: Compare API mode value with what official app shows
+// Log the raw value and compare: "API gv_mode=2, app shows 'Frost'"
+this.log(`Raw mode: ${deviceData.gv_mode}`);
+// Then fix mapping based on actual behavior
+```
+
+---
+
+### ❌ Don't: Assume flat data arrays have real-time data
+```javascript
+// BAD: Using top-level devices array
+const devices = apiResponse.devices;  // May be stale/cached!
+```
+
+### ✅ Do: Check nested structures for real-time data
+```javascript
+// GOOD: Extract from zones/rooms for fresh data
+const devices = [];
+for (const zone of apiResponse.zones) {
+  devices.push(...zone.devices);
+}
+```
+
+---
+
+### ❌ Don't: Rely solely on OAuth2App token persistence
+```javascript
+// BAD: Assumes tokens are always available
+const token = this.getToken().access_token;
+```
+
+### ✅ Do: Backup tokens in homey.settings
+```javascript
+// GOOD: Fallback to settings backup
+let token = this.getToken()?.access_token;
+if (!token) {
+  token = this.homey.settings.get('myapp_access_token');
+}
+```
+
+---
 
 ### ❌ Don't: Hardcode temperature types
 ```javascript

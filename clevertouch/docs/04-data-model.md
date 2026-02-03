@@ -177,34 +177,48 @@ Power outlet device.
 
 ### HeatMode
 
+**IMPORTANT:** Verified via actual API testing - mode values differ from some documentation!
+
 | Value | API Value | Description |
 |-------|-----------|-------------|
 | `Off` | 0 | Device off |
-| `Frost` | 1 | Frost protection |
-| `Eco` | 2 | Energy saving |
+| `Eco` | 1 | Energy saving (NOT Frost!) |
+| `Frost` | 2 | Frost protection (NOT Eco!) |
 | `Comfort` | 3 | Comfort temperature |
 | `Program` | 4 | Schedule mode |
 | `Boost` | 5 | Temporary boost |
 
+**Note:** The Home `general_mode` field can override device-level modes. When `general_mode` is 1-5, all devices use that mode regardless of their individual `gv_mode` value. `general_mode=0` means no override.
+
 ### TempType
+
+**IMPORTANT:** API returns temperatures in **Fahrenheit × 10**, not Celsius × 10!
 
 | Value | API Field | Description |
 |-------|-----------|-------------|
-| `current` | sonde_temperature | Measured temperature |
-| `comfort` | consigne_confort | Comfort setpoint |
-| `eco` | consigne_eco | Eco setpoint |
-| `frost` | consigne_hg | Frost protection setpoint |
-| `boost` | consigne_boost | Boost setpoint |
-| `target` | (computed) | Active target |
-| `none` | - | No temperature control |
+| `current` | temperature_air | Current air temperature (°F × 10) |
+| `comfort` | consigne_confort | Comfort setpoint (°F × 10) |
+| `eco` | consigne_eco | Eco setpoint (°F × 10) |
+| `frost` | consigne_hg | Frost protection setpoint (°F × 10) |
+| `boost` | consigne_boost | Boost setpoint (°F × 10) |
+| `target` | (computed) | Active target based on mode |
+| `floor` | temperature_sol | Floor temperature sensor (°F × 10) |
+
+**Conversion formula:**
+```javascript
+// API value to Celsius
+const celsius = ((apiValue / 10) - 32) * 5 / 9;
+
+// Example: API returns 470 → 47°F → 8.3°C
+```
 
 ### TempUnit
 
 | Value | Description |
 |-------|-------------|
-| `device` | Internal units (Celsius × 10) |
+| `device` | Internal units (**Fahrenheit × 10**) |
 | `celsius` | Degrees Celsius |
-| `farenheit` | Degrees Fahrenheit |
+| `fahrenheit` | Degrees Fahrenheit |
 
 ### DeviceType
 

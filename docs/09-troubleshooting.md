@@ -38,3 +38,34 @@
   - assets are included
   - correct paths in compose
   - browser console errors (if applicable)
+
+## OAuth2 / Cloud API issues
+
+### Token expiration causing "Device Unavailable"
+- OAuth2App may not persist tokens reliably across restarts
+- **Solution**: Backup tokens in `homey.settings` (access_token, refresh_token, expires_at)
+- Implement proactive token refresh before expiration (at 80% lifetime)
+
+### Data doesn't match official app
+1. **Wrong temperature values**: API may use different units than expected
+   - Many APIs use Celsius × 10, but some use **Fahrenheit × 10**
+   - **Debug**: Log raw API value, compare to official app, calculate conversion
+   - Example: Raw 470, official shows 8.3°C → 470/10=47°F → (47-32)×5/9=8.3°C ✓
+
+2. **Wrong mode displayed**: Mode values may differ from documentation
+   - **Debug**: Log raw mode value, compare to official app's display
+   - Example: API gv_mode=2, official shows "Frost" → 2=Frost (not Eco!)
+
+3. **Stale/cached data**: API may return data from different sources
+   - Real-time data often in nested structures (zones[].devices[])
+   - Summary/cached data in flat arrays (devices[])
+   - **Debug**: Compare temperatures from both sources to official app
+
+### Steps to verify API data accuracy
+```javascript
+// Add detailed logging during development
+this.log(`Raw API data: ${JSON.stringify(deviceData)}`);
+this.log(`Raw temp: ${deviceData.temperature_air} → ${convertedTemp}°C`);
+this.log(`Raw mode: ${deviceData.gv_mode} → displayed as: ${modeString}`);
+// Compare logged values to official app/website
+```

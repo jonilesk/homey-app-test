@@ -192,6 +192,27 @@ class RadiatorDevice extends OAuth2Device {
         this._updateCapability('clevertouch_heating_active', heatingActive);
       }
 
+      // Update zone name
+      if (deviceData._zoneName) {
+        this._updateCapability('clevertouch_zone', deviceData._zoneName);
+      }
+
+      // Update power consumption (watts when heating, 0 when idle)
+      // puissance_app contains the device wattage rating
+      const heatingActive = String(deviceData.heating_up) === '1';
+      const powerWatts = parseInt(deviceData.puissance_app, 10) || 0;
+      const currentPower = heatingActive ? powerWatts : 0;
+      this._updateCapability('meter_power', currentPower);
+      this.log(`Power: ${currentPower}W (device rating: ${powerWatts}W, heating: ${heatingActive})`);
+
+      // Update error status
+      const errorCode = parseInt(deviceData.error_code, 10) || 0;
+      const hasError = errorCode !== 0;
+      this._updateCapability('clevertouch_error', hasError);
+      if (hasError) {
+        this.log(`Error detected: code ${errorCode}`);
+      }
+
       // Mark device as available if it was unavailable
       if (!this.getAvailable()) {
         await this.setAvailable();
