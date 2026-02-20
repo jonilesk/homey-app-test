@@ -1,11 +1,42 @@
 # Dreame Robot Vacuum — Homey App Implementation Plan
-_Date: 2026-02-09_
+_Date: 2026-02-10 (rev 2)_
 
 > **Scope**: Dreame robot vacuums only · EU region only (hardcoded `de`) · No maps in v1 · Cloud-only (no local miio)
 
+---
+
+## Implementation Status
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| §1 Authentication | ✅ DONE | `lib/MiCloudClient.js` — 3-step login, session persist/restore |
+| §2 Cloud API endpoints | ✅ DONE | `lib/MiCloudClient.js` — encrypted RPC, device discovery (own+shared homes), check login |
+| §3 MiOT property mappings | ✅ DONE | `lib/MiOTProperties.js` — all SIID/PIID/AIID constants, state enums, reverse maps |
+| §4 RC4 encryption | ✅ DONE | `lib/MiCloudClient.js` — nonce, signedNonce, RC4 enc/dec, SHA-1 signature, pure-JS fallback |
+| §5.1 Architecture | ✅ DONE | Plain Homey SDK, no homey-oauth2app, shared MiCloudClient |
+| §5.2 File structure | ✅ DONE | All files created, `homey app build` + `validate` pass |
+| §5.3 app.js | ✅ DONE | Flow card registration, session restore, shared MiCloudClient |
+| §5.4 MiCloudClient.js | ✅ DONE | Full implementation (~400 lines) |
+| §5.5 driver.js / pairing | ✅ DONE | login_credentials → list_devices → add_devices |
+| §5.6 device.js | ✅ DONE | Polling (120s/15s quick), fail-soft, state transitions, capability listeners |
+| §5.7 Custom capabilities | ✅ DONE | 4 capabilities: status, fan_speed, clean_mode, water_flow |
+| §5.8 Flow cards | ✅ DONE | 14 cards: 4 triggers, 3 conditions, 7 actions |
+| Locales | ✅ DONE | en.json + fi.json with all translations |
+| Build/Validate | ✅ DONE | `homey app validate --level publish` passes |
+| §7 Verification | ⬜ TODO | Needs real Dreame vacuum + Xiaomi account |
+| Icons | ✅ DONE | From Tasshack/dreame-vacuum — robot_idle.png + robot_active.png, resized |
+| Multi-region | ⬜ TODO | v2 — settings page for country selection |
+| Room cleaning | ⬜ TODO | v2 — SIID 4, AIID 4 with room params |
+| Consumables | ⬜ TODO | v2 — brush/filter life tracking |
+| Unit tests | ⬜ TODO | RC4 crypto against Python reference values |
+
+**Implementation log**: [`logs/dreame-app-implementation.md`](../logs/dreame-app-implementation.md)
+
 ## Critical correction
 
-The previous version of this document described a **non-existent** Dreame-specific HTTP API (`dreame.tech:13267`). That API path does not exist in the current Tasshack/dreame-vacuum HA integration. Dreame vacuums are **Xiaomi ecosystem devices** controlled through the **Xiaomi MiOT Cloud API** at `api.io.mi.com`. Authentication is a 3-step Xiaomi account login (cookie-based with `serviceToken` + `ssecurity`), and all requests use **RC4 encryption** with HMAC-SHA256 signatures.
+The previous version of this document described a **non-existent** Dreame-specific HTTP API (`dreame.tech:13267`). That API path does not exist in the current Tasshack/dreame-vacuum HA integration. Dreame vacuums are **Xiaomi ecosystem devices** controlled through the **Xiaomi MiOT Cloud API** at `api.io.mi.com`. Authentication is a 3-step Xiaomi account login (cookie-based with `serviceToken` + `ssecurity`), and all requests use **RC4 encryption** with **SHA-1 signatures** (for encrypted mode).
+
+> **Note**: The HA integration has two signature functions: `generate_signature` (HMAC-SHA256, for non-encrypted requests) and `generate_enc_signature` (plain SHA-1, for RC4-encrypted requests). This app uses RC4-encrypted mode exclusively, so all signatures use **SHA-1**.
 
 Reference: `custom_components/dreame_vacuum/dreame/protocol.py` — class `DreameVacuumCloudProtocol`
 
@@ -108,17 +139,23 @@ channel             = MI_APP_STORE
 
 ### 2.3 Device list
 ```
-POST {baseUrl}/v2/homeroom/gethome
-  params: { fg: true, fetch_share: true, fetch_share_dev: true, limit: 100, app_ver: 7 }
-  → returns homes[]  (extract home IDs)
+1. POST {baseUrl}/v2/homeroom/gethome
+   params: { fg: true, fetch_share: true, fetch_share_dev: true, limit: 100, app_ver: 7 }
+   → returns result.homelist[]  (extract home IDs, owner = userId)
 
-POST {baseUrl}/v2/home/home_device_list
-  params: { home_id: <id>, home_owner: <uid>, limit: 100, get_split_device: true, support_smart_home: true }
-  → returns device_info[] per home
+2. POST {baseUrl}/v2/user/get_device_cnt
+   params: { fetch_own: true, fetch_share: true }
+   → returns result.share.share_family[]  (extract home_id + home_owner for shared homes)
 
-POST {baseUrl}/home/device_list
-  params: { getVirtualModel: false, getHuamiDevices: 0 }
-  → returns list[] (fallback/additional devices)
+3. For each home (own + shared):
+   POST {baseUrl}/v2/home/home_device_list
+   params: { home_id: <id>, home_owner: <owner>, limit: 100, get_split_device: true, support_smart_home: true }
+   → returns device_info[] per home
+
+4. POST {baseUrl}/home/device_list
+   params: { getVirtualModel: false, getHuamiDevices: 0 }
+   → returns list[] (fallback/additional devices)
+   → Deduplicate by MAC: only add devices not already in the list from step 3
 ```
 
 Filter devices where `model` starts with `dreame.vacuum.`.
@@ -129,8 +166,10 @@ Device fields needed: `did`, `mac`, `model`, `token`, `localip`, `name`
 ```
 POST {baseUrl}/v2/message/v2/check_new_msg
   params: { begin_at: <unix_timestamp - 60> }
-  → if response.code in [2, 3] or message contains "auth err" / "SERVICETOKEN_EXPIRED" → re-login
+  → if response.code in [2, 3] or message contains "auth err" / "invalid signature" / "SERVICETOKEN_EXPIRED" → re-login
 ```
+
+`checkLogin()` has dual purpose: it can validate any API response (passed as parameter) OR make a dedicated check call. Call it after every API response to detect expired sessions early.
 
 ### 2.5 Device RPC (read properties / send commands)
 ```
@@ -203,8 +242,11 @@ All Dreame vacuum control uses the MiOT standard (SIID = Service ID, PIID = Prop
 | 7 | Mopping |
 | 8 | Drying |
 | 9 | Washing |
+| 10 | Returning to Wash |
+| 11 | Building (mapping) |
 | 12 | Sweeping and Mopping |
 | 13 | Charging Completed |
+| 14 | Upgrading (firmware) |
 
 **DreameVacuumSuctionLevel** (SIID:4 PIID:4):
 
@@ -222,16 +264,24 @@ All Dreame vacuum control uses the MiOT standard (SIID = Service ID, PIID = Prop
 This is the most complex part. Port directly from the HA integration's Python code.
 
 ### 4.1 Nonce generation
+
+The time part uses **variable-length** big-endian encoding (matching Python's `int.to_bytes((bit_length+7)//8)`).
+Currently ~3 bytes for minutes-since-epoch; will grow over time.
+
 ```javascript
 function generateNonce() {
-  const millis = Date.now();
-  const buf = Buffer.alloc(12);
-  // 8 random bytes (signed 64-bit equivalent)
-  crypto.randomFillSync(buf, 0, 8);
-  // Append minutes-since-epoch
-  const minutes = Math.floor(millis / 60000);
-  buf.writeUInt32BE(minutes, 8);
-  return buf.toString('base64');
+  const randomPart = crypto.randomBytes(8);
+  const minutes = Math.floor(Date.now() / 60000);
+  // Variable-length big-endian encoding of minutes (matches Python bit_length calc)
+  const bitLen = minutes === 0 ? 1 : Math.floor(Math.log2(minutes)) + 1;
+  const byteLen = Math.ceil(bitLen / 8);
+  const timeBuf = Buffer.alloc(byteLen);
+  let val = minutes;
+  for (let i = byteLen - 1; i >= 0; i--) {
+    timeBuf[i] = val & 0xff;
+    val = Math.floor(val / 256);
+  }
+  return Buffer.concat([randomPart, timeBuf]).toString('base64');
 }
 ```
 
@@ -246,31 +296,70 @@ function signedNonce(ssecurity, nonce) {
 ```
 
 ### 4.3 RC4 encrypt/decrypt
+
+> **⚠ OpenSSL 3.x / Node.js 18+ warning**: RC4 is a legacy cipher. `crypto.createCipheriv('rc4', key, null)` may throw `Error: unsupported` on some builds. Homey SDK 3 runs Node 18 — test this early. If it fails, use a pure-JS RC4 implementation (~20 lines) or the `arc4` npm package as fallback. The IV must be `null` (not `''`) on Node 18+.
+
 ```javascript
 function encryptRC4(key, data) {
   // Skip first 1024 bytes of keystream (same as Python: r.encrypt(bytes(1024)))
-  const cipher = crypto.createCipheriv('rc4', Buffer.from(key, 'base64'), '');
+  const cipher = crypto.createCipheriv('rc4', Buffer.from(key, 'base64'), null);
   cipher.update(Buffer.alloc(1024));  // discard first 1024 bytes
   return cipher.update(data, 'utf8', 'base64');
 }
 
 function decryptRC4(key, data) {
-  const decipher = crypto.createDecipheriv('rc4', Buffer.from(key, 'base64'), '');
+  const decipher = crypto.createDecipheriv('rc4', Buffer.from(key, 'base64'), null);
   decipher.update(Buffer.alloc(1024));  // discard first 1024 bytes
   return decipher.update(Buffer.from(data, 'base64'));
 }
 ```
 
-### 4.4 Signature generation
+**Pure-JS RC4 fallback** (if Node.js crypto rejects `rc4`):
+```javascript
+function rc4(key, data) {
+  const S = Array.from({ length: 256 }, (_, i) => i);
+  let j = 0;
+  for (let i = 0; i < 256; i++) {
+    j = (j + S[i] + key[i % key.length]) & 0xff;
+    [S[i], S[j]] = [S[j], S[i]];
+  }
+  let i = 0; j = 0;
+  const out = Buffer.alloc(data.length);
+  // Skip first 1024 bytes of keystream
+  for (let n = 0; n < 1024; n++) {
+    i = (i + 1) & 0xff; j = (j + S[i]) & 0xff;
+    [S[i], S[j]] = [S[j], S[i]];
+  }
+  for (let n = 0; n < data.length; n++) {
+    i = (i + 1) & 0xff; j = (j + S[i]) & 0xff;
+    [S[i], S[j]] = [S[j], S[i]];
+    out[n] = data[n] ^ S[(S[i] + S[j]) & 0xff];
+  }
+  return out;
+}
+```
+
+### 4.4 Signature generation (encrypted mode)
+
+> **CRITICAL**: This uses **plain SHA-1** (not HMAC-SHA256). The HA integration has two signature functions:
+> - `generate_signature()` — HMAC-SHA256, for non-encrypted requests (not used by this app)
+> - `generate_enc_signature()` — **plain SHA-1**, for RC4-encrypted requests (this is what we use)
+>
+> Parameter order: `[METHOD, url_path, ...params_in_insertion_order, signedNonce]`
+> URL transform: `url.split('com')[1].replace('/app/', '/')` — keeps the leading `/`
+> Params must **NOT** be sorted — use insertion order.
+
 ```javascript
 function generateEncSignature(url, method, signedNonce, params) {
-  const signArr = [url.split('com/app/')[1] || url, signedNonce, method];
-  for (const [k, v] of Object.entries(params).sort()) {
+  const urlPath = url.split('com')[1].replace('/app/', '/');
+  const signArr = [method.toUpperCase(), urlPath];
+  // Params in insertion order — do NOT sort
+  for (const [k, v] of Object.entries(params)) {
     signArr.push(`${k}=${v}`);
   }
+  signArr.push(signedNonce);
   const signStr = signArr.join('&');
-  return crypto.createHmac('sha256', Buffer.from(signedNonce, 'base64'))
-    .update(signStr).digest().toString('base64');
+  return crypto.createHash('sha1').update(signStr).digest().toString('base64');
 }
 ```
 
@@ -302,7 +391,7 @@ Xiaomi Cloud uses cookie-based 3-step login with RC4 encryption — not OAuth2. 
 dreame-app/
 ├── app.js                              # extends Homey.App — creates shared MiCloudClient
 ├── app.json                            # generated from .homeycompose
-├── package.json                        # node-fetch ^2.6.9 (no homey-oauth2app)
+├── package.json                        # no homey-oauth2app; use native fetch (Node 18+)
 ├── .homeycompose/
 │   ├── app.json                        # id: tech.dreame.vacuum, sdk:3, platforms:["local"]
 │   ├── capabilities/
@@ -435,7 +524,10 @@ On `list_devices`: call `getDevices()`, filter `dreame.vacuum.*`, return:
     { "id": "charging_completed", "title": { "en": "Charged" } },
     { "id": "error", "title": { "en": "Error" } },
     { "id": "drying", "title": { "en": "Drying" } },
-    { "id": "washing", "title": { "en": "Washing" } }
+    { "id": "washing", "title": { "en": "Washing" } },
+    { "id": "returning_washing", "title": { "en": "Returning to Wash" } },
+    { "id": "building", "title": { "en": "Mapping" } },
+    { "id": "upgrading", "title": { "en": "Upgrading" } }
   ]
 }
 ```
@@ -472,7 +564,7 @@ On `list_devices`: call `getDevices()`, filter `dreame.vacuum.*`, return:
 | **Plain Homey SDK** (no `homey-oauth2app`) | Xiaomi Cloud is cookie-based with RC4; not OAuth2. Manual session management is simpler. |
 | **EU only** (hardcoded `de` country) | Simplifies v1. Country can become a pairing setting in v2. |
 | **Shared `MiCloudClient`** instance | All devices share one auth session, avoids redundant logins. Matches HA integration pattern. |
-| **RC4 via Node.js `crypto`** | `crypto.createCipheriv('rc4', key, '')` — built-in, no external dependency. |
+| **RC4 via Node.js `crypto`** | `crypto.createCipheriv('rc4', key, null)` — built-in, no external dependency. Pure-JS fallback ready if OpenSSL 3.x rejects legacy RC4. |
 | **No 2FA/CAPTCHA in v1** | Xiaomi may require these. Users must clear challenges via Mi Home app first, then retry pairing. |
 | **Properties batched** ≤15 per call | Matches HA integration's batching limit for `get_properties`. |
 | **No maps** | Homey has no map display. Skipped for v1. |

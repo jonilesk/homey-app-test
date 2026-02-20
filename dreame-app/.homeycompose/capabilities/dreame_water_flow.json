@@ -1,0 +1,19 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Water Flow",
+    "fi": "Vesimäärä"
+  },
+  "desc": {
+    "en": "Mopping water flow level",
+    "fi": "Moppauksen vesimäärä"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "low", "title": { "en": "Low", "fi": "Matala" } },
+    { "id": "medium", "title": { "en": "Medium", "fi": "Keskitaso" } },
+    { "id": "high", "title": { "en": "High", "fi": "Korkea" } }
+  ]
+}

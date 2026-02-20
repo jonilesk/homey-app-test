@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Main Brush",
+    "fi": "Pääharjan kunto"
+  },
+  "desc": {
+    "en": "Main brush remaining life percentage",
+    "fi": "Pääharjan jäljellä oleva käyttöikä"
+  },
+  "units": {
+    "en": "%",
+    "fi": "%"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "min": 0,
+  "max": 100
+}

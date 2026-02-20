@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Locate vacuum",
+    "fi": "Paikanna imuri"
+  },
+  "hint": {
+    "en": "Make the vacuum play a sound to help locate it",
+    "fi": "Soita ääni imurin paikantamiseksi"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

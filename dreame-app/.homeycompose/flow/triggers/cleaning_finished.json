@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Cleaning finished",
+    "fi": "Siivous päättyi"
+  },
+  "hint": {
+    "en": "Triggered when the vacuum finishes cleaning",
+    "fi": "Laukeaa kun imuri lopettaa siivouksen"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

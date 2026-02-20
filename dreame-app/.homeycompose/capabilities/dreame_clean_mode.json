@@ -1,0 +1,19 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Clean Mode",
+    "fi": "Siivoustila"
+  },
+  "desc": {
+    "en": "Cleaning mode (sweep, mop, or both)",
+    "fi": "Siivoustila (imurointi, moppaus tai molemmat)"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "sweeping", "title": { "en": "Sweeping", "fi": "Imurointi" } },
+    { "id": "mopping", "title": { "en": "Mopping", "fi": "Moppaus" } },
+    { "id": "sweeping_and_mopping", "title": { "en": "Sweeping & Mopping", "fi": "Imurointi & moppaus" } }
+  ]
+}

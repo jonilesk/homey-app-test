@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Start cleaning",
+    "fi": "Aloita siivous"
+  },
+  "hint": {
+    "en": "Start or resume cleaning",
+    "fi": "Aloita tai jatka siivousta"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

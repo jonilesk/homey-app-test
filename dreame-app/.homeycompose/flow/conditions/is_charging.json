@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Vacuum !{{is|is not}} charging",
+    "fi": "Imuri !{{latautuu|ei lataudu}}"
+  },
+  "hint": {
+    "en": "Check if the vacuum is currently charging",
+    "fi": "Tarkista latautuuko imuri parhaillaan"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

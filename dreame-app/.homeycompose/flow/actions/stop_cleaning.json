@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Stop cleaning",
+    "fi": "Lopeta siivous"
+  },
+  "hint": {
+    "en": "Stop cleaning completely",
+    "fi": "Lopeta siivous kokonaan"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

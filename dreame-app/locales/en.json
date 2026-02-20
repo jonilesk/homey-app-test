@@ -1,0 +1,11 @@
+{
+  "pair": {
+    "error": {
+      "missing_credentials": "Please enter both username and password.",
+      "no_devices": "No Dreame vacuums found on this Xiaomi account."
+    }
+  },
+  "device": {
+    "unavailable": "Cannot reach device"
+  }
+}

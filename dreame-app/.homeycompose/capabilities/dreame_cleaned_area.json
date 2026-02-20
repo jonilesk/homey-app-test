@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Cleaned Area",
+    "fi": "Siivottu alue"
+  },
+  "desc": {
+    "en": "Area cleaned in current/last session",
+    "fi": "Siivottu alue nykyisessä/viime siivouksessa"
+  },
+  "units": {
+    "en": "m²",
+    "fi": "m²"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "min": 0
+}

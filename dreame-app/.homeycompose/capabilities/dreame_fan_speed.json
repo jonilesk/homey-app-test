@@ -1,0 +1,20 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Fan Speed",
+    "fi": "Imuteho"
+  },
+  "desc": {
+    "en": "Vacuum suction level",
+    "fi": "Imurin tehotaso"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "quiet", "title": { "en": "Quiet", "fi": "Hiljainen" } },
+    { "id": "standard", "title": { "en": "Standard", "fi": "Normaali" } },
+    { "id": "strong", "title": { "en": "Strong", "fi": "Voimakas" } },
+    { "id": "turbo", "title": { "en": "Turbo", "fi": "Turbo" } }
+  ]
+}

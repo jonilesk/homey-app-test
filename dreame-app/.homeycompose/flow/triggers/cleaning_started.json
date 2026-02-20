@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Cleaning started",
+    "fi": "Siivous alkoi"
+  },
+  "hint": {
+    "en": "Triggered when the vacuum starts cleaning",
+    "fi": "Laukeaa kun imuri aloittaa siivouksen"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

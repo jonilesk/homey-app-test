@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Side Brush",
+    "fi": "Sivuharjan kunto"
+  },
+  "desc": {
+    "en": "Side brush remaining life percentage",
+    "fi": "Sivuharjan jäljellä oleva käyttöikä"
+  },
+  "units": {
+    "en": "%",
+    "fi": "%"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "min": 0,
+  "max": 100
+}

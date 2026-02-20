@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Pause cleaning",
+    "fi": "Keskeytä siivous"
+  },
+  "hint": {
+    "en": "Pause the current cleaning session",
+    "fi": "Keskeytä nykyinen siivous"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "pair": {
+    "error": {
+      "missing_credentials": "Anna sekä käyttäjätunnus että salasana.",
+      "no_devices": "Dreame-imureita ei löytynyt tältä Xiaomi-tililtä."
+    }
+  },
+  "device": {
+    "unavailable": "Laitteeseen ei saada yhteyttä"
+  }
+}

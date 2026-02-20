@@ -1,0 +1,35 @@
+{
+  "title": {
+    "en": "Set fan speed",
+    "fi": "Aseta imuteho"
+  },
+  "titleFormatted": {
+    "en": "Set fan speed to [[speed]]",
+    "fi": "Aseta imuteho [[speed]]"
+  },
+  "hint": {
+    "en": "Change the vacuum suction level",
+    "fi": "Vaihda imurin tehotaso"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    },
+    {
+      "type": "dropdown",
+      "name": "speed",
+      "title": {
+        "en": "Fan Speed",
+        "fi": "Imuteho"
+      },
+      "values": [
+        { "id": "quiet", "title": { "en": "Quiet", "fi": "Hiljainen" } },
+        { "id": "standard", "title": { "en": "Standard", "fi": "Normaali" } },
+        { "id": "strong", "title": { "en": "Strong", "fi": "Voimakas" } },
+        { "id": "turbo", "title": { "en": "Turbo", "fi": "Turbo" } }
+      ]
+    }
+  ]
+}

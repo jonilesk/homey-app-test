@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Error occurred",
+    "fi": "Virhe tapahtui"
+  },
+  "hint": {
+    "en": "Triggered when the vacuum reports an error",
+    "fi": "Laukeaa kun imuri raportoi virheen"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

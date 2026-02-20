@@ -1,0 +1,46 @@
+{
+  "title": {
+    "en": "Clean specific rooms",
+    "fi": "Siivoa tietyt huoneet"
+  },
+  "titleFormatted": {
+    "en": "Clean rooms [[rooms]] [[repeat]]",
+    "fi": "Siivoa huoneet [[rooms]] [[repeat]]"
+  },
+  "hint": {
+    "en": "Start cleaning specific rooms/segments. Select one or more rooms from the list.",
+    "fi": "Aloita tiettyjen huoneiden siivous. Valitse yksi tai useampi huone listalta."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    },
+    {
+      "type": "autocomplete",
+      "name": "rooms",
+      "title": {
+        "en": "Room(s)",
+        "fi": "Huone(et)"
+      },
+      "placeholder": {
+        "en": "Search for a room...",
+        "fi": "Hae huonetta..."
+      }
+    },
+    {
+      "type": "dropdown",
+      "name": "repeat",
+      "title": {
+        "en": "Repeat",
+        "fi": "Toistot"
+      },
+      "values": [
+        { "id": "1", "title": { "en": "1 time", "fi": "1 kerta" } },
+        { "id": "2", "title": { "en": "2 times", "fi": "2 kertaa" } },
+        { "id": "3", "title": { "en": "3 times", "fi": "3 kertaa" } }
+      ]
+    }
+  ]
+}

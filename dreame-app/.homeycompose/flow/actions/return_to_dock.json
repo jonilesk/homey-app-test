@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Return to dock",
+    "fi": "Palaa telakkaan"
+  },
+  "hint": {
+    "en": "Send the vacuum back to its charging dock",
+    "fi": "Lähetä imuri takaisin telakkaan"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

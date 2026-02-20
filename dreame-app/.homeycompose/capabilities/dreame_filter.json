@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Filter",
+    "fi": "Suodattimen kunto"
+  },
+  "desc": {
+    "en": "Filter remaining life percentage",
+    "fi": "Suodattimen jäljellä oleva käyttöikä"
+  },
+  "units": {
+    "en": "%",
+    "fi": "%"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "min": 0,
+  "max": 100
+}

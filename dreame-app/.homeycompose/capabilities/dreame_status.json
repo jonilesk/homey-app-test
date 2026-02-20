@@ -1,0 +1,30 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Status",
+    "fi": "Tila"
+  },
+  "desc": {
+    "en": "Current vacuum status",
+    "fi": "Imurin nykyinen tila"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    { "id": "idle", "title": { "en": "Idle", "fi": "Odottaa" } },
+    { "id": "sweeping", "title": { "en": "Sweeping", "fi": "Imuroi" } },
+    { "id": "mopping", "title": { "en": "Mopping", "fi": "Moppaa" } },
+    { "id": "sweeping_and_mopping", "title": { "en": "Sweeping & Mopping", "fi": "Imuroi & moppaa" } },
+    { "id": "paused", "title": { "en": "Paused", "fi": "Tauolla" } },
+    { "id": "returning", "title": { "en": "Returning", "fi": "Palaa telakkaan" } },
+    { "id": "charging", "title": { "en": "Charging", "fi": "Latautuu" } },
+    { "id": "charging_completed", "title": { "en": "Charged", "fi": "Ladattu" } },
+    { "id": "error", "title": { "en": "Error", "fi": "Virhe" } },
+    { "id": "drying", "title": { "en": "Drying", "fi": "Kuivaa" } },
+    { "id": "washing", "title": { "en": "Washing", "fi": "Pesee" } },
+    { "id": "returning_washing", "title": { "en": "Returning to Wash", "fi": "Palaa pesulle" } },
+    { "id": "building", "title": { "en": "Mapping", "fi": "Kartoittaa" } },
+    { "id": "upgrading", "title": { "en": "Upgrading", "fi": "Päivittää" } }
+  ]
+}

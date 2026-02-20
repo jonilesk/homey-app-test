@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Returned to dock",
+    "fi": "Palasi telakkaan"
+  },
+  "hint": {
+    "en": "Triggered when the vacuum returns to the charging dock",
+    "fi": "Laukeaa kun imuri palaa telakkaan"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

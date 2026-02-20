@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Vacuum !{{is|is not}} cleaning",
+    "fi": "Imuri !{{siivoaa|ei siivoa}}"
+  },
+  "hint": {
+    "en": "Check if the vacuum is currently cleaning",
+    "fi": "Tarkista siivaaako imuri parhaillaan"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    }
+  ]
+}

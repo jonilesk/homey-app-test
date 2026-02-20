@@ -1,0 +1,34 @@
+{
+  "title": {
+    "en": "Set clean mode",
+    "fi": "Aseta siivoustila"
+  },
+  "titleFormatted": {
+    "en": "Set clean mode to [[mode]]",
+    "fi": "Aseta siivoustila [[mode]]"
+  },
+  "hint": {
+    "en": "Change the cleaning mode (sweep, mop, or both)",
+    "fi": "Vaihda siivoustila (imurointi, moppaus tai molemmat)"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Clean Mode",
+        "fi": "Siivoustila"
+      },
+      "values": [
+        { "id": "sweeping", "title": { "en": "Sweeping", "fi": "Imurointi" } },
+        { "id": "mopping", "title": { "en": "Mopping", "fi": "Moppaus" } },
+        { "id": "sweeping_and_mopping", "title": { "en": "Sweeping & Mopping", "fi": "Imurointi & moppaus" } }
+      ]
+    }
+  ]
+}

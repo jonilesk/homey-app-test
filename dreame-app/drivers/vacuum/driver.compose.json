@@ -1,0 +1,94 @@
+{
+  "name": {
+    "en": "Dreame Vacuum",
+    "fi": "Dreame-robotti-imuri"
+  },
+  "class": "vacuumcleaner",
+  "capabilities": [
+    "onoff",
+    "measure_battery",
+    "dreame_status",
+    "dreame_fan_speed",
+    "dreame_clean_mode",
+    "dreame_water_flow",
+    "dreame_cleaned_area",
+    "dreame_cleaning_time",
+    "dreame_main_brush",
+    "dreame_side_brush",
+    "dreame_filter"
+  ],
+  "energy": {
+    "batteries": ["INTERNAL"],
+    "approximation": {
+      "usageConstant": 40
+    }
+  },
+  "pair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "../../../assets/icon.png",
+        "title": {
+          "en": "Login to Dreame Account",
+          "fi": "Kirjaudu Dreame-tilille"
+        },
+        "usernameLabel": {
+          "en": "Dreame Account (email/phone)",
+          "fi": "Dreame-tili (sähköposti/puhelin)"
+        },
+        "usernamePlaceholder": {
+          "en": "your@email.com",
+          "fi": "sinun@sahkoposti.fi"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "fi": "Salasana"
+        },
+        "passwordPlaceholder": {
+          "en": "Password",
+          "fi": "Salasana"
+        }
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "images": {
+    "small": "/drivers/vacuum/assets/icon.png",
+    "large": "/drivers/vacuum/assets/icon_large.png"
+  },
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Room Configuration",
+        "fi": "Huonekonfiguraatio"
+      },
+      "children": [
+        {
+          "id": "rooms_config",
+          "type": "textarea",
+          "label": {
+            "en": "Room Names (JSON)",
+            "fi": "Huoneiden nimet (JSON)"
+          },
+          "hint": {
+            "en": "Configure room names as JSON. Check the Dreame app to find segment IDs. Format: [{\"id\":1,\"name\":\"Living Room\"},{\"id\":2,\"name\":\"Kitchen\"}]",
+            "fi": "Määritä huoneiden nimet JSON-muodossa. Tarkista segmentti-ID:t Dreame-sovelluksesta. Muoto: [{\"id\":1,\"name\":\"Olohuone\"},{\"id\":2,\"name\":\"Keittiö\"}]"
+          },
+          "value": "[{\"id\":1,\"name\":\"Kitchen\"},{\"id\":2,\"name\":\"Dining Room\"},{\"id\":3,\"name\":\"Living Room\"},{\"id\":4,\"name\":\"Hallway\"},{\"id\":5,\"name\":\"Stairs\"},{\"id\":6,\"name\":\"Bathroom\"},{\"id\":7,\"name\":\"Study\"},{\"id\":8,\"name\":\"Closet\"},{\"id\":9,\"name\":\"Bathroom2\"}]"
+        }
+      ]
+    }
+  ]
+}

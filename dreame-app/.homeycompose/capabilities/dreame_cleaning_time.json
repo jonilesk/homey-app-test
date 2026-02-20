@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Cleaning Time",
+    "fi": "Siivousaika"
+  },
+  "desc": {
+    "en": "Cleaning time in current/last session",
+    "fi": "Siivousaika nykyisessä/viime siivouksessa"
+  },
+  "units": {
+    "en": "min",
+    "fi": "min"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "min": 0
+}

@@ -1,0 +1,35 @@
+{
+  "title": {
+    "en": "Fan speed !{{is|is not}}...",
+    "fi": "Imuteho !{{on|ei ole}}..."
+  },
+  "titleFormatted": {
+    "en": "Fan speed !{{is|is not}} [[speed]]",
+    "fi": "Imuteho !{{on|ei ole}} [[speed]]"
+  },
+  "hint": {
+    "en": "Check if the fan speed matches the selected level",
+    "fi": "Tarkista onko imuteho valittu taso"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=vacuum"
+    },
+    {
+      "type": "dropdown",
+      "name": "speed",
+      "title": {
+        "en": "Fan Speed",
+        "fi": "Imuteho"
+      },
+      "values": [
+        { "id": "quiet", "title": { "en": "Quiet", "fi": "Hiljainen" } },
+        { "id": "standard", "title": { "en": "Standard", "fi": "Normaali" } },
+        { "id": "strong", "title": { "en": "Strong", "fi": "Voimakas" } },
+        { "id": "turbo", "title": { "en": "Turbo", "fi": "Turbo" } }
+      ]
+    }
+  ]
+}
