@@ -1,0 +1,20 @@
+{
+  "id": "solar_production_changed",
+  "title": { "en": "Solar production changed" },
+  "hint": { "en": "Triggers when solar power output changes" },
+  "tokens": [
+    {
+      "name": "power",
+      "type": "number",
+      "title": { "en": "Power (W)" },
+      "example": 1500
+    }
+  ],
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inverter"
+    }
+  ]
+}

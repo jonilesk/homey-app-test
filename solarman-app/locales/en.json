@@ -1,0 +1,62 @@
+{
+  "drivers": {
+    "inverter": {
+      "pair": {
+        "configure": {
+          "title": "Configure Inverter Connection",
+          "host": "Inverter Host (IP Address)",
+          "serial": "Data Logger Serial Number",
+          "port": "Port",
+          "slaveid": "Modbus Slave ID",
+          "lookup": "Inverter Model"
+        },
+        "test": {
+          "title": "Test Connection",
+          "testing": "Testing connection...",
+          "success": "Connection successful!",
+          "failed": "Connection failed: {{error}}"
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "solarman_inverter_status": {
+      "title": "Inverter Status"
+    },
+    "solarman_grid_frequency": {
+      "title": "Grid Frequency"
+    },
+    "solarman_country": {
+      "title": "Country Setting"
+    },
+    "solarman_fault_1": {
+      "title": "Fault 1"
+    },
+    "solarman_fault_2": {
+      "title": "Fault 2"
+    },
+    "solarman_fault_3": {
+      "title": "Fault 3"
+    },
+    "solarman_fault_4": {
+      "title": "Fault 4"
+    },
+    "solarman_fault_5": {
+      "title": "Fault 5"
+    },
+    "solarman_work_mode": {
+      "title": "Work Mode"
+    },
+    "solarman_battery_status": {
+      "title": "Battery Status"
+    }
+  },
+  "settings": {
+    "inverter_host": "Inverter Host",
+    "inverter_port": "Port",
+    "inverter_serial": "Serial Number",
+    "inverter_mb_slaveid": "Modbus Slave ID",
+    "lookup_file": "Inverter Model",
+    "poll_interval": "Polling Interval (seconds)"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "inverter_is_normal",
+  "title": { "en": "Inverter status is Normal" },
+  "hint": { "en": "Check if the inverter is in Normal operating status" },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inverter"
+    }
+  ]
+}

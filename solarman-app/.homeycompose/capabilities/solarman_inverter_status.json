@@ -1,0 +1,15 @@
+{
+  "type": "enum",
+  "title": { "en": "Inverter Status" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/status.svg",
+  "values": [
+    { "id": "standby", "title": { "en": "Stand-by" } },
+    { "id": "selfcheck", "title": { "en": "Self-checking" } },
+    { "id": "normal", "title": { "en": "Normal" } },
+    { "id": "fault", "title": { "en": "FAULT" } },
+    { "id": "permanent", "title": { "en": "Permanent" } }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "inverter_status_changed",
+  "title": { "en": "Inverter status changed" },
+  "hint": { "en": "Triggers when inverter status changes (Normal, FAULT, Stand-by, etc.)" },
+  "tokens": [
+    {
+      "name": "status",
+      "type": "string",
+      "title": { "en": "Status" },
+      "example": "Normal"
+    }
+  ],
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inverter"
+    }
+  ]
+}

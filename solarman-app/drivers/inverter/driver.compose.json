@@ -1,0 +1,361 @@
+{
+  "name": {
+    "en": "Solarman Inverter"
+  },
+  "class": "solarpanel",
+  "capabilities": [
+    "measure_power",
+    "meter_power",
+    "measure_temperature",
+    "solarman_inverter_status",
+    "solarman_grid_frequency",
+    "solarman_country",
+    "solarman_fault_1",
+    "solarman_fault_2",
+    "solarman_fault_3",
+    "solarman_fault_4",
+    "solarman_fault_5"
+  ],
+  "capabilitiesOptions": {
+    "measure_power": {
+      "title": {
+        "en": "Output Power"
+      },
+      "decimals": 0
+    },
+    "meter_power": {
+      "title": {
+        "en": "Total Production"
+      },
+      "decimals": 1
+    },
+    "measure_temperature": {
+      "title": {
+        "en": "Module Temperature"
+      },
+      "decimals": 0
+    },
+    "measure_power.pv1": {
+      "title": {
+        "en": "PV1 Power"
+      },
+      "decimals": 0
+    },
+    "measure_power.pv2": {
+      "title": {
+        "en": "PV2 Power"
+      },
+      "decimals": 0
+    },
+    "measure_power.output": {
+      "title": {
+        "en": "Output Active Power"
+      },
+      "decimals": 0
+    },
+    "measure_voltage.pv1": {
+      "title": {
+        "en": "PV1 Voltage"
+      },
+      "decimals": 1
+    },
+    "measure_voltage.pv2": {
+      "title": {
+        "en": "PV2 Voltage"
+      },
+      "decimals": 1
+    },
+    "measure_voltage.l1": {
+      "title": {
+        "en": "L1 Voltage"
+      },
+      "decimals": 1
+    },
+    "measure_voltage.l2": {
+      "title": {
+        "en": "L2 Voltage"
+      },
+      "decimals": 1
+    },
+    "measure_voltage.l3": {
+      "title": {
+        "en": "L3 Voltage"
+      },
+      "decimals": 1
+    },
+    "measure_current.pv1": {
+      "title": {
+        "en": "PV1 Current"
+      },
+      "decimals": 2
+    },
+    "measure_current.pv2": {
+      "title": {
+        "en": "PV2 Current"
+      },
+      "decimals": 2
+    },
+    "measure_current.l1": {
+      "title": {
+        "en": "L1 Current"
+      },
+      "decimals": 2
+    },
+    "measure_current.l2": {
+      "title": {
+        "en": "L2 Current"
+      },
+      "decimals": 2
+    },
+    "measure_current.l3": {
+      "title": {
+        "en": "L3 Current"
+      },
+      "decimals": 2
+    },
+    "meter_power.daily_production": {
+      "title": {
+        "en": "Daily Production"
+      },
+      "decimals": 2
+    },
+    "meter_power.total_production": {
+      "title": {
+        "en": "Total Production"
+      },
+      "decimals": 1
+    },
+    "measure_temperature.module": {
+      "title": {
+        "en": "Module Temperature"
+      },
+      "decimals": 0
+    },
+    "measure_temperature.inner": {
+      "title": {
+        "en": "Inner Temperature"
+      },
+      "decimals": 0
+    },
+    "solarman_grid_frequency": {
+      "decimals": 2
+    }
+  },
+  "energy": {
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power"
+  },
+  "pair": [
+    {
+      "id": "configure",
+      "template": "login_credentials",
+      "options": {
+        "logo": "../assets/icon.svg",
+        "title": {
+          "en": "Configure Inverter Connection"
+        },
+        "usernameLabel": {
+          "en": "Inverter Host (IP Address)"
+        },
+        "usernamePlaceholder": {
+          "en": "e.g. 192.168.1.100"
+        },
+        "passwordLabel": {
+          "en": "Data Logger Serial Number"
+        },
+        "passwordPlaceholder": {
+          "en": "e.g. 1234567890"
+        }
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "id": "inverter_host",
+      "type": "text",
+      "label": {
+        "en": "Inverter Host"
+      },
+      "value": "",
+      "hint": {
+        "en": "IP address of the Solarman data logger"
+      }
+    },
+    {
+      "id": "inverter_port",
+      "type": "number",
+      "label": {
+        "en": "Port"
+      },
+      "value": 8899,
+      "hint": {
+        "en": "TCP port (default: 8899)"
+      },
+      "min": 1,
+      "max": 65535
+    },
+    {
+      "id": "inverter_serial",
+      "type": "number",
+      "label": {
+        "en": "Serial Number"
+      },
+      "value": 0,
+      "hint": {
+        "en": "Data logger serial number"
+      }
+    },
+    {
+      "id": "inverter_mb_slaveid",
+      "type": "number",
+      "label": {
+        "en": "Modbus Slave ID"
+      },
+      "value": 1,
+      "hint": {
+        "en": "Modbus slave ID of the inverter (default: 1)"
+      },
+      "min": 1,
+      "max": 247
+    },
+    {
+      "id": "lookup_file",
+      "type": "dropdown",
+      "label": {
+        "en": "Inverter Model"
+      },
+      "value": "sofar_lsw3.yaml",
+      "hint": {
+        "en": "Select the inverter definition profile"
+      },
+      "values": [
+        {
+          "id": "Afore_BNTxxxKTL-2mppt.yaml",
+          "label": {
+            "en": "Afore BNTxxxKTL (2 MPPT)"
+          }
+        },
+        {
+          "id": "deye_2mppt.yaml",
+          "label": {
+            "en": "Deye 2 MPPT"
+          }
+        },
+        {
+          "id": "deye_4mppt.yaml",
+          "label": {
+            "en": "Deye 4 MPPT"
+          }
+        },
+        {
+          "id": "deye_hybrid.yaml",
+          "label": {
+            "en": "Deye Hybrid"
+          }
+        },
+        {
+          "id": "deye_sg04lp3.yaml",
+          "label": {
+            "en": "Deye SG04LP3"
+          }
+        },
+        {
+          "id": "deye_string.yaml",
+          "label": {
+            "en": "Deye String"
+          }
+        },
+        {
+          "id": "hyd-zss-hp-3k-6k.yaml",
+          "label": {
+            "en": "HYD-ZSS-HP 3K-6K"
+          }
+        },
+        {
+          "id": "kstar_hybrid.yaml",
+          "label": {
+            "en": "KStar Hybrid"
+          }
+        },
+        {
+          "id": "sofar_g3hyd.yaml",
+          "label": {
+            "en": "Sofar G3 Hybrid"
+          }
+        },
+        {
+          "id": "sofar_hyd3k-6k-es.yaml",
+          "label": {
+            "en": "Sofar HYD 3K-6K ES"
+          }
+        },
+        {
+          "id": "sofar_lsw3.yaml",
+          "label": {
+            "en": "Sofar LSW3"
+          }
+        },
+        {
+          "id": "sofar_wifikit.yaml",
+          "label": {
+            "en": "Sofar WiFi Kit"
+          }
+        },
+        {
+          "id": "solis_1p8k-5g.yaml",
+          "label": {
+            "en": "Solis 1P8K 5G"
+          }
+        },
+        {
+          "id": "solis_3p-4g.yaml",
+          "label": {
+            "en": "Solis 3P 4G"
+          }
+        },
+        {
+          "id": "solis_hybrid.yaml",
+          "label": {
+            "en": "Solis Hybrid"
+          }
+        },
+        {
+          "id": "solis_s6-gr1p.yaml",
+          "label": {
+            "en": "Solis S6 GR1P"
+          }
+        },
+        {
+          "id": "zcs_azzurro-ktl-v3.yaml",
+          "label": {
+            "en": "ZCS Azzurro KTL V3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "poll_interval",
+      "type": "number",
+      "label": {
+        "en": "Polling Interval (seconds)"
+      },
+      "value": 60,
+      "hint": {
+        "en": "How often to read inverter data (minimum 15 seconds)"
+      },
+      "min": 15,
+      "max": 600
+    }
+  ]
+}

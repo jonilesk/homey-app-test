@@ -1,0 +1,16 @@
+{
+  "name": "com.solarman.inverter",
+  "version": "1.0.0",
+  "description": "Solarman inverter monitoring via local LAN (Solarman V5 protocol)",
+  "main": "app.js",
+  "scripts": {
+    "discover": "node cli/discover.js",
+    "read": "node cli/read-inverter.js",
+    "write": "node cli/write-register.js",
+    "monitor": "node cli/monitor.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "commander": "^11.0.0"
+  }
+}

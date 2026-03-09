@@ -1,0 +1,7 @@
+{
+  "type": "string",
+  "title": { "en": "Battery Status" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}

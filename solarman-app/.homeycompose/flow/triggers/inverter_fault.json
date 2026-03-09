@@ -1,0 +1,26 @@
+{
+  "id": "inverter_fault",
+  "title": { "en": "Inverter fault detected" },
+  "hint": { "en": "Triggers when an inverter fault is detected" },
+  "tokens": [
+    {
+      "name": "fault_code",
+      "type": "string",
+      "title": { "en": "Fault Code" },
+      "example": "Fault 1"
+    },
+    {
+      "name": "fault_text",
+      "type": "string",
+      "title": { "en": "Fault Description" },
+      "example": "ID01 Grid Over Voltage Protection"
+    }
+  ],
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inverter"
+    }
+  ]
+}

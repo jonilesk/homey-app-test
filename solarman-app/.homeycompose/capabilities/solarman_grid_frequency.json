@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Grid Frequency" },
+  "units": { "en": "Hz" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "decimals": 2,
+  "icon": "/assets/capabilities/frequency.svg"
+}

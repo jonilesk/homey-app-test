@@ -1,0 +1,7 @@
+{
+  "type": "string",
+  "title": { "en": "Fault 5" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}

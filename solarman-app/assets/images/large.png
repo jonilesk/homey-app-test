@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960" fill="none">
+  <circle cx="480" cy="420" r="200" stroke="#FF6600" stroke-width="40" fill="none"/>
+  <line x1="480" y1="120" x2="480" y2="20" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="480" y1="720" x2="480" y2="620" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="180" y1="420" x2="80" y2="420" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="780" y1="420" x2="880" y2="420" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="268" y1="208" x2="197" y2="137" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="692" y1="632" x2="763" y2="703" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="268" y1="632" x2="197" y2="703" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <line x1="692" y1="208" x2="763" y2="137" stroke="#FF6600" stroke-width="40" stroke-linecap="round"/>
+  <path d="M430 380 L430 460 L530 460 L530 380 M480 340 L480 380 M480 460 L480 500" stroke="#FF6600" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="480" y="880" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#FF6600">SOLAR</text>
+</svg>

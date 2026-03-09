@@ -1,0 +1,12 @@
+{
+  "id": "is_producing_solar",
+  "title": { "en": "Solar is producing power" },
+  "hint": { "en": "Check if the inverter is currently producing solar power" },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inverter"
+    }
+  ]
+}
