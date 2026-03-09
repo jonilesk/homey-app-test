@@ -1,0 +1,32 @@
+{
+  "drivers": {
+    "forecast": {
+      "pair": {
+        "api_key": {
+          "title": "Solcast API Key",
+          "hint": "Enter your Solcast API key from toolkit.solcast.com.au"
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "solcast_power_30m": { "title": "Power in 30 min" },
+    "solcast_power_1hr": { "title": "Power in 1 hour" },
+    "solcast_forecast_today": { "title": "Forecast Today" },
+    "solcast_forecast_tomorrow": { "title": "Forecast Tomorrow" },
+    "solcast_forecast_remaining": { "title": "Remaining Today" },
+    "solcast_forecast_this_hour": { "title": "This Hour" },
+    "solcast_forecast_next_hour": { "title": "Next Hour" },
+    "solcast_peak_today": { "title": "Peak Today" },
+    "solcast_peak_tomorrow": { "title": "Peak Tomorrow" },
+    "solcast_api_used": { "title": "API Usage" },
+    "solcast_last_updated": { "title": "Last Updated" }
+  },
+  "settings": {
+    "api_key": "API Key",
+    "api_quota": "Daily API Quota",
+    "update_mode": "Update Mode",
+    "estimate_type": "Estimate Type",
+    "hard_limit": "Hard Limit (kW)"
+  }
+}

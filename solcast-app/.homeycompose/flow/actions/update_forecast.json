@@ -1,0 +1,7 @@
+{
+  "id": "update_forecast",
+  "title": { "en": "Update forecast" },
+  "titleFormatted": { "en": "Update Solcast forecast" },
+  "hint": { "en": "Manually trigger a Solcast forecast update (uses 1 API call)" },
+  "args": [{ "type": "device", "name": "device", "filter": "driver_id=forecast" }]
+}

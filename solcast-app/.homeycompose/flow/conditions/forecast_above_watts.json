@@ -1,0 +1,10 @@
+{
+  "id": "forecast_above_watts",
+  "title": { "en": "Forecast power is above..." },
+  "titleFormatted": { "en": "Forecast power is above [[watts]] W" },
+  "hint": { "en": "Check if forecasted power exceeds a threshold" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=forecast" },
+    { "type": "number", "name": "watts", "title": { "en": "Watts" }, "min": 0, "step": 100 }
+  ]
+}

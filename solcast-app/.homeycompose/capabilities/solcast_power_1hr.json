@@ -1,0 +1,1 @@
+{ "type": "number", "title": { "en": "Power in 1 hour" }, "units": { "en": "W" }, "insights": true, "getable": true, "setable": false, "uiComponent": "sensor", "decimals": 0, "icon": "/assets/capabilities/power.svg" }

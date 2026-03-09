@@ -1,0 +1,10 @@
+{
+  "id": "forecast_updated",
+  "title": { "en": "Forecast updated" },
+  "hint": { "en": "Triggers when Solcast forecast data is refreshed" },
+  "tokens": [
+    { "name": "power_now", "type": "number", "title": { "en": "Power Now (W)" }, "example": 2500 },
+    { "name": "forecast_today", "type": "number", "title": { "en": "Forecast Today (kWh)" }, "example": 28.5 }
+  ],
+  "args": [{ "type": "device", "name": "device", "filter": "driver_id=forecast" }]
+}

@@ -1,0 +1,1 @@
+{ "type": "number", "title": { "en": "Forecast Next Hour" }, "units": { "en": "Wh" }, "insights": true, "getable": true, "setable": false, "uiComponent": "sensor", "decimals": 0 }

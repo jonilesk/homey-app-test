@@ -1,0 +1,10 @@
+{
+  "name": "com.solcast.solar",
+  "version": "1.0.0",
+  "description": "Solcast PV Forecast for Homey",
+  "main": "app.js",
+  "scripts": {
+    "fetch": "node cli/fetch-forecast.js",
+    "monitor": "node cli/monitor.js"
+  }
+}

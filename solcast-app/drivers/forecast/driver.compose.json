@@ -1,0 +1,115 @@
+{
+  "name": { "en": "Solcast PV Forecast" },
+  "class": "solarpanel",
+  "capabilities": [
+    "measure_power",
+    "meter_power",
+    "solcast_power_30m",
+    "solcast_power_1hr",
+    "solcast_forecast_today",
+    "solcast_forecast_tomorrow",
+    "solcast_forecast_remaining",
+    "solcast_forecast_this_hour",
+    "solcast_forecast_next_hour",
+    "solcast_peak_today",
+    "solcast_peak_tomorrow",
+    "solcast_api_used",
+    "solcast_last_updated"
+  ],
+  "capabilitiesOptions": {
+    "measure_power": {
+      "title": { "en": "Forecasted Power Now" },
+      "decimals": 0
+    },
+    "meter_power": {
+      "title": { "en": "Forecast Today" },
+      "decimals": 2
+    }
+  },
+  "energy": {
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power"
+  },
+  "pair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "../assets/icon.svg",
+        "title": { "en": "Connect to Solcast" },
+        "usernameLabel": { "en": "Solcast API Key" },
+        "usernamePlaceholder": { "en": "Paste your API key from toolkit.solcast.com.au" },
+        "passwordLabel": { "en": "Daily API Quota" },
+        "passwordPlaceholder": { "en": "10" }
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "id": "api_key",
+      "type": "password",
+      "label": { "en": "Solcast API Key" },
+      "value": "",
+      "hint": { "en": "Your Solcast API key from toolkit.solcast.com.au" }
+    },
+    {
+      "id": "api_quota",
+      "type": "number",
+      "label": { "en": "Daily API Quota" },
+      "value": 10,
+      "hint": { "en": "Maximum API calls per UTC day" },
+      "min": 1,
+      "max": 100
+    },
+    {
+      "id": "update_mode",
+      "type": "dropdown",
+      "label": { "en": "Update Mode" },
+      "value": "daily",
+      "hint": { "en": "When to automatically fetch forecasts from Solcast API" },
+      "values": [
+        { "id": "none", "label": { "en": "Manual only (via Flow)" } },
+        { "id": "daily", "label": { "en": "Daily at scheduled hour (recommended)" } }
+      ]
+    },
+    {
+      "id": "fetch_hour",
+      "type": "number",
+      "label": { "en": "Fetch Hour (local time)" },
+      "value": 3,
+      "hint": { "en": "Hour of day (0-23) to fetch forecast from Solcast API. Capabilities refresh from cache every hour." },
+      "min": 0,
+      "max": 23
+    },
+    {
+      "id": "estimate_type",
+      "type": "dropdown",
+      "label": { "en": "Estimate Type" },
+      "value": "pv_estimate",
+      "hint": { "en": "Which forecast confidence level to display" },
+      "values": [
+        { "id": "pv_estimate", "label": { "en": "Most Likely (50%)" } },
+        { "id": "pv_estimate10", "label": { "en": "Conservative (10%)" } },
+        { "id": "pv_estimate90", "label": { "en": "Optimistic (90%)" } }
+      ]
+    },
+    {
+      "id": "hard_limit",
+      "type": "number",
+      "label": { "en": "Hard Limit (kW)" },
+      "value": 0,
+      "hint": { "en": "Clamp peak forecast to inverter max (0 = disabled)" },
+      "min": 0,
+      "max": 100
+    }
+  ]
+}

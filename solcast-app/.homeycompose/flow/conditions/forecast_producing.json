@@ -1,0 +1,6 @@
+{
+  "id": "forecast_producing",
+  "title": { "en": "Forecast is producing power" },
+  "hint": { "en": "Check if forecasted solar production is above zero" },
+  "args": [{ "type": "device", "name": "device", "filter": "driver_id=forecast" }]
+}
