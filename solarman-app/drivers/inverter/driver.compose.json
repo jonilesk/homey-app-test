@@ -39,17 +39,38 @@
       "title": {
         "en": "PV1 Power"
       },
-      "decimals": 0
+      "decimals": 0,
+      "uiComponent": null
     },
     "measure_power.pv2": {
       "title": {
         "en": "PV2 Power"
       },
-      "decimals": 0
+      "decimals": 0,
+      "uiComponent": null
     },
     "measure_power.output": {
       "title": {
         "en": "Output Active Power"
+      },
+      "decimals": 0,
+      "uiComponent": null
+    },
+    "measure_power.grid": {
+      "title": {
+        "en": "Grid Power"
+      },
+      "decimals": 0
+    },
+    "measure_power.load": {
+      "title": {
+        "en": "Load Power"
+      },
+      "decimals": 0
+    },
+    "measure_power.battery": {
+      "title": {
+        "en": "Battery Power"
       },
       "decimals": 0
     },
@@ -57,61 +78,78 @@
       "title": {
         "en": "PV1 Voltage"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_voltage.pv2": {
       "title": {
         "en": "PV2 Voltage"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_voltage.l1": {
       "title": {
         "en": "L1 Voltage"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_voltage.l2": {
       "title": {
         "en": "L2 Voltage"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_voltage.l3": {
       "title": {
         "en": "L3 Voltage"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "measure_voltage.battery": {
+      "title": {
+        "en": "Battery Voltage"
+      },
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_current.pv1": {
       "title": {
         "en": "PV1 Current"
       },
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
     },
     "measure_current.pv2": {
       "title": {
         "en": "PV2 Current"
       },
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
     },
     "measure_current.l1": {
       "title": {
         "en": "L1 Current"
       },
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
     },
     "measure_current.l2": {
       "title": {
         "en": "L2 Current"
       },
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
     },
     "measure_current.l3": {
       "title": {
         "en": "L3 Current"
       },
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
     },
     "meter_power.daily_production": {
       "title": {
@@ -123,22 +161,85 @@
       "title": {
         "en": "Total Production"
       },
-      "decimals": 1
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "meter_power.daily_bought": {
+      "title": {
+        "en": "Daily Grid Import"
+      },
+      "decimals": 2,
+      "uiComponent": null
+    },
+    "meter_power.total_bought": {
+      "title": {
+        "en": "Total Grid Import"
+      },
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "meter_power.daily_sold": {
+      "title": {
+        "en": "Daily Grid Export"
+      },
+      "decimals": 2,
+      "uiComponent": null
+    },
+    "meter_power.total_sold": {
+      "title": {
+        "en": "Total Grid Export"
+      },
+      "decimals": 1,
+      "uiComponent": null
     },
     "measure_temperature.module": {
       "title": {
         "en": "Module Temperature"
       },
-      "decimals": 0
+      "decimals": 0,
+      "uiComponent": null
     },
     "measure_temperature.inner": {
       "title": {
         "en": "Inner Temperature"
       },
-      "decimals": 0
+      "decimals": 0,
+      "uiComponent": null
+    },
+    "measure_temperature.battery": {
+      "title": {
+        "en": "Battery Temperature"
+      },
+      "decimals": 0,
+      "uiComponent": null
     },
     "solarman_grid_frequency": {
-      "decimals": 2
+      "decimals": 2,
+      "uiComponent": null
+    },
+    "solarman_country": {
+      "uiComponent": null
+    },
+    "solarman_fault_1": {
+      "uiComponent": null
+    },
+    "solarman_fault_2": {
+      "uiComponent": null
+    },
+    "solarman_fault_3": {
+      "uiComponent": null
+    },
+    "solarman_fault_4": {
+      "uiComponent": null
+    },
+    "solarman_fault_5": {
+      "uiComponent": null
+    },
+    "solarman_battery_status": {
+      "uiComponent": null
+    },
+    "solarman_work_mode": {
+      "uiComponent": null
     }
   },
   "energy": {

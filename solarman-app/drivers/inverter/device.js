@@ -12,6 +12,16 @@ const POLL_INTERVAL_NORMAL = 60 * 1000;   // 60 seconds default, overridable via
 const POLL_INTERVAL_QUICK = 15 * 1000;    // 15 seconds after change
 const QUICK_POLL_COUNT = 3;               // Number of quick polls
 const MIN_POLL_INTERVAL = 15 * 1000;      // Floor for user-configured interval
+const POLL_INTERVAL_SLEEP = 5 * 60 * 1000; // 5 minutes when inverter is sleeping
+
+// Instantaneous capabilities that should be zeroed when inverter sleeps at night
+const SLEEP_ZERO_CAPABILITIES = [
+  'measure_power', 'measure_power.pv1', 'measure_power.pv2',
+  'measure_power.output', 'measure_power.grid', 'measure_power.load',
+  'measure_power.battery',
+  'measure_current.pv1', 'measure_current.pv2',
+  'measure_current.l1', 'measure_current.l2', 'measure_current.l3',
+];
 
 // Map YAML parameter names → Homey capability IDs (null = skip)
 const CAPABILITY_MAP = {
@@ -112,6 +122,17 @@ class InverterDevice extends Homey.Device {
     this._lastFault3 = undefined;
     this._lastFault4 = undefined;
     this._lastFault5 = undefined;
+
+    // Night-sleep tracking: once we've had a successful poll, connection
+    // failures are treated as the inverter sleeping (not a real error).
+    // If the device already has cumulative data from a previous session,
+    // assume it was connected before (survives app restarts at night).
+    this._everConnected = this.getCapabilityValue('meter_power') != null
+      || this.getCapabilityValue('meter_power.total_production') != null;
+    this._sleeping = false;
+    if (this._everConnected) {
+      this.log('Device has previous data — treating connection failures as sleep');
+    }
 
     // Load inverter YAML definition
     this._loadDefinition();
@@ -228,15 +249,29 @@ class InverterDevice extends Homey.Device {
       return;
     }
 
-    // Connect first — connection failures are fatal and mark the device unavailable
+    // Connect first — connection failures are handled differently depending
+    // on whether the inverter has been seen before (night-sleep vs real fault)
     try {
       await this._api.connect();
+      // If we were sleeping and just reconnected, resume normal polling
+      if (this._sleeping) {
+        this.log('[poll] Inverter woke up — resuming normal operation');
+        this._sleeping = false;
+        this._restartPolling();
+      }
     } catch (error) {
       this.error('[poll] Connection failed:', error.message);
-      if (this.getAvailable()) {
-        await this.setUnavailable(`Connection failed: ${error.message}`);
-      }
       await this._api.disconnect().catch(() => {});
+
+      if (this._everConnected) {
+        // Inverter was reachable before → treat as night-sleep
+        this._handleSleep();
+      } else {
+        // Never connected successfully → real configuration / network error
+        if (this.getAvailable()) {
+          await this.setUnavailable(`Connection failed: ${error.message}`);
+        }
+      }
       return;
     }
 
@@ -275,21 +310,25 @@ class InverterDevice extends Homey.Device {
           this.log(`[poll] Register range 0x${start.toString(16)}-0x${end.toString(16)} (FC${mbFc}) skipped: ${msg}`);
         } else {
           // Connection-level error (timeout, socket closed, etc.)
-          this.error(`[poll] Fatal error reading registers: ${msg}`);
-          if (this.getAvailable()) {
+          this.error(`[poll] Connection error reading registers: ${msg}`);
+          await this._api.disconnect().catch(() => {});
+          if (this._everConnected) {
+            this._handleSleep();
+          } else if (this.getAvailable()) {
             await this.setUnavailable(msg);
           }
-          await this._api.disconnect().catch(() => {});
           return;
         }
       }
     }
 
     if (successCount === 0 && failCount > 0) {
-      // All register ranges failed with Modbus errors — wrong profile or inverter offline
-      this.log(`[poll] All ${failCount} register range(s) failed — check inverter profile or inverter may be in standby`);
-      if (!this.getAvailable()) return;
-      // Don't mark unavailable immediately; inverter may just be sleeping at night
+      // All register ranges failed with Modbus errors — logger reachable but
+      // inverter CPU is off (sleeping at night) or wrong profile
+      this.log(`[poll] All ${failCount} register range(s) failed — inverter may be sleeping`);
+      if (this._everConnected) {
+        this._handleSleep();
+      }
       return;
     }
 
@@ -329,6 +368,9 @@ class InverterDevice extends Homey.Device {
 
       // Fire flow triggers for changed values
       this._fireTriggers(values);
+
+      // Successful poll — mark that we have connected at least once
+      this._everConnected = true;
 
       // Mark available if it was unavailable
       if (!this.getAvailable()) {
@@ -393,6 +435,35 @@ class InverterDevice extends Homey.Device {
   }
 
   /**
+   * Handle the inverter being unreachable after a previous successful connection.
+   * Zeroes instantaneous power/current, sets status to standby, and keeps
+   * the device available so the user still sees last cumulative values
+   * (daily/total production, battery SOC, temperatures, etc.).
+   */
+  _handleSleep() {
+    if (!this._sleeping) {
+      this.log('[poll] Inverter appears to be sleeping — zeroing power, keeping last values');
+      this._sleeping = true;
+
+      // Zero out instantaneous power & current readings
+      for (const cap of SLEEP_ZERO_CAPABILITIES) {
+        this._updateCapability(cap, 0);
+      }
+
+      // Set inverter status to standby
+      this._updateCapability('solarman_inverter_status', 'standby');
+
+      // Slow down polling while sleeping
+      this._restartPolling(POLL_INTERVAL_SLEEP);
+    }
+
+    // Keep the device available — user sees last known cumulative values
+    if (!this.getAvailable()) {
+      this.setAvailable().catch(err => this.error('[sleep] Failed to set available:', err));
+    }
+  }
+
+  /**
    * Handle device settings changes from the Homey UI.
    */
   async onSettings({ oldSettings, newSettings, changedKeys }) {
@@ -421,8 +492,9 @@ class InverterDevice extends Homey.Device {
 
   /**
    * Restart the normal polling interval (e.g. after poll_interval setting changes).
+   * @param {number} [overrideInterval] - Optional interval in ms (used for sleep mode)
    */
-  _restartPolling() {
+  _restartPolling(overrideInterval) {
     if (this.pollTimeout) {
       this.homey.clearTimeout(this.pollTimeout);
       this.pollTimeout = null;
@@ -432,11 +504,12 @@ class InverterDevice extends Homey.Device {
       this.pollInterval = null;
     }
 
-    const interval = Math.max(
+    const interval = overrideInterval || Math.max(
       (this.getSetting('poll_interval') || (POLL_INTERVAL_NORMAL / 1000)) * 1000,
       MIN_POLL_INTERVAL,
     );
 
+    this.log(`[poll] Polling interval set to ${interval / 1000}s`);
     this.pollInterval = this.homey.setInterval(
       () => this.poll(),
       interval,
