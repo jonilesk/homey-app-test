@@ -9,6 +9,9 @@ class ForecastDevice extends Homey.Device {
   async onInit() {
     this.log('ForecastDevice initializing');
 
+    // Migrate settings added after initial pairing
+    await this._migrateSettings();
+
     this._api = new SolcastApi({
       apiKey: this.getSetting('api_key'),
       timeout: 30000,
@@ -124,8 +127,8 @@ class ForecastDevice extends Homey.Device {
       this._dailyFetchTimer = null;
     }
 
-    const fetchHour = this.getSetting('fetch_hour') || 3;
-    const mode = this.getSetting('update_mode') || 'daily';
+    const fetchHour = this._normalizeFetchHour(this.getSetting('fetch_hour'));
+    const mode = this._normalizeUpdateMode(this.getSetting('update_mode'));
 
     if (mode === 'none') {
       this.log('[schedule] Manual mode — no automatic API fetch');
@@ -207,6 +210,85 @@ class ForecastDevice extends Homey.Device {
     } catch (err) {
       this.error('[cache] Save error:', err);
     }
+  }
+
+  async _migrateSettings() {
+    const updates = {};
+
+    const mode = this._normalizeUpdateMode(this.getSetting('update_mode'));
+    if (mode !== this.getSetting('update_mode')) {
+      updates.update_mode = mode;
+    }
+
+    const fetchHour = this._normalizeFetchHour(this.getSetting('fetch_hour'));
+    if (fetchHour !== this.getSetting('fetch_hour')) {
+      updates.fetch_hour = fetchHour;
+    }
+
+    const estimateType = this._normalizeEstimateType(this.getSetting('estimate_type'));
+    if (estimateType !== this.getSetting('estimate_type')) {
+      updates.estimate_type = estimateType;
+    }
+
+    const hardLimit = this._normalizeHardLimit(this.getSetting('hard_limit'));
+    if (hardLimit !== this.getSetting('hard_limit')) {
+      updates.hard_limit = hardLimit;
+    }
+
+    const apiQuota = this._normalizeApiQuota(this.getSetting('api_quota'));
+    if (apiQuota !== this.getSetting('api_quota')) {
+      updates.api_quota = apiQuota;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      this.log('[migrate] Setting defaults:', updates);
+      await this.setSettings(updates).catch(err =>
+        this.error('[migrate] Failed to set defaults:', err)
+      );
+    }
+  }
+
+  _normalizeUpdateMode(value) {
+    // Map legacy values to valid dropdown IDs.
+    const mode = String(value || '').toLowerCase();
+    if (mode === 'none' || mode === 'daily') {
+      return mode;
+    }
+    if (mode === 'manual' || mode === 'off' || mode === 'disabled') {
+      return 'none';
+    }
+    return 'daily';
+  }
+
+  _normalizeFetchHour(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+      return 3;
+    }
+    return Math.min(23, Math.max(0, Math.round(n)));
+  }
+
+  _normalizeEstimateType(value) {
+    if (value === 'pv_estimate' || value === 'pv_estimate10' || value === 'pv_estimate90') {
+      return value;
+    }
+    return 'pv_estimate';
+  }
+
+  _normalizeHardLimit(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+      return 0;
+    }
+    return Math.min(100, Math.max(0, n));
+  }
+
+  _normalizeApiQuota(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+      return 10;
+    }
+    return Math.min(100, Math.max(1, Math.round(n)));
   }
 
   async onSettings({ oldSettings, newSettings, changedKeys }) {

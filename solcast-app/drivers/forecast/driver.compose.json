@@ -78,7 +78,12 @@
       "hint": { "en": "When to automatically fetch forecasts from Solcast API" },
       "values": [
         { "id": "none", "label": { "en": "Manual only (via Flow)" } },
-        { "id": "daily", "label": { "en": "Daily at scheduled hour (recommended)" } }
+        { "id": "daily", "label": { "en": "Daily at scheduled hour (recommended)" } },
+        { "id": "manual", "label": { "en": "Manual only (legacy)" } },
+        { "id": "off", "label": { "en": "Manual only (legacy off)" } },
+        { "id": "disabled", "label": { "en": "Manual only (legacy disabled)" } },
+        { "id": "auto", "label": { "en": "Daily (legacy auto)" } },
+        { "id": "hourly", "label": { "en": "Daily (legacy hourly)" } }
       ]
     },
     {
