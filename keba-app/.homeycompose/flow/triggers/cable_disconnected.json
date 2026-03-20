@@ -1,0 +1,8 @@
+{
+  "id": "cable_disconnected",
+  "title": { "en": "Car disconnected" },
+  "hint": { "en": "Triggers when the EV is unplugged from the charger" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

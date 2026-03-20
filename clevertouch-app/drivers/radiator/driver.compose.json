@@ -124,6 +124,35 @@
       }
     }
   ],
+  "repair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "../../../assets/icon.svg",
+        "title": {
+          "en": "Re-login to CleverTouch",
+          "fi": "Kirjaudu uudelleen CleverTouch-palveluun"
+        },
+        "usernameLabel": {
+          "en": "Email",
+          "fi": "Sähköposti"
+        },
+        "usernamePlaceholder": {
+          "en": "your@email.com",
+          "fi": "sinun@sahkoposti.fi"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "fi": "Salasana"
+        },
+        "passwordPlaceholder": {
+          "en": "Password",
+          "fi": "Salasana"
+        }
+      }
+    }
+  ],
   "images": {
     "large": "/drivers/radiator/assets/images/large.png",
     "small": "/drivers/radiator/assets/images/small.png"

@@ -1,0 +1,11 @@
+{
+  "id": "error_occurred",
+  "title": { "en": "Charger error occurred" },
+  "hint": { "en": "Triggers when the charger reports an error" },
+  "tokens": [
+    { "name": "details", "type": "string", "title": { "en": "Error Details" }, "example": "error" }
+  ],
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

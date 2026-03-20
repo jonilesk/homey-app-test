@@ -8,6 +8,8 @@
     "set_temperature_failed": "Lämpötilan asetus epäonnistui. Yritä uudelleen.",
     "set_mode_failed": "Lämmitystilan asetus epäonnistui. Yritä uudelleen.",
     "invalid_mode": "Virheellinen lämmitystila valittu.",
-    "set_presets_failed": "Lämpötila-asetusten päivitys epäonnistui. Yritä uudelleen."
+    "set_presets_failed": "Lämpötila-asetusten päivitys epäonnistui. Yritä uudelleen.",
+    "auth_expired": "Kirjautuminen vanhentunut. Korjaa laite Homey-sovelluksessa.",
+    "repair_login_failed": "Kirjautuminen epäonnistui. Tarkista sähköposti ja salasana."
   }
 }

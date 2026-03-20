@@ -1,0 +1,121 @@
+{
+  "name": { "en": "KEBA KeContact" },
+  "class": "evcharger",
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "capabilities": [
+    "onoff",
+    "keba_charging_state",
+    "keba_cable_state",
+    "keba_current_limit",
+    "keba_max_current"
+  ],
+  "capabilitiesOptions": {
+    "onoff": {
+      "title": { "en": "Charging Enabled" },
+      "greyout": false
+    },
+    "measure_power": {
+      "title": { "en": "Charging Power" },
+      "decimals": 0
+    },
+    "meter_power": {
+      "title": { "en": "Total Energy" },
+      "decimals": 2
+    },
+    "meter_power.session": {
+      "title": { "en": "Session Energy" },
+      "decimals": 2,
+      "uiComponent": null
+    },
+    "measure_current.phase1": {
+      "title": { "en": "Phase 1 Current" },
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "measure_current.phase2": {
+      "title": { "en": "Phase 2 Current" },
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "measure_current.phase3": {
+      "title": { "en": "Phase 3 Current" },
+      "decimals": 1,
+      "uiComponent": null
+    },
+    "measure_voltage.phase1": {
+      "title": { "en": "Phase 1 Voltage" },
+      "decimals": 0,
+      "uiComponent": null
+    },
+    "measure_voltage.phase2": {
+      "title": { "en": "Phase 2 Voltage" },
+      "decimals": 0,
+      "uiComponent": null
+    },
+    "measure_voltage.phase3": {
+      "title": { "en": "Phase 3 Voltage" },
+      "decimals": 0,
+      "uiComponent": null
+    }
+  },
+  "energy": {
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power"
+  },
+  "pair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "title": "Configure KEBA Charger",
+        "usernameLabel": "Charger IP Address",
+        "usernamePlaceholder": "e.g. 192.168.1.50",
+        "passwordLabel": "Serial Number (optional)",
+        "passwordPlaceholder": "Leave empty to auto-detect"
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": { "en": "Connection" },
+      "children": [
+        {
+          "id": "host",
+          "type": "text",
+          "label": { "en": "IP Address" },
+          "hint": { "en": "IP address of the KEBA charger on your local network" },
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": { "en": "Polling" },
+      "children": [
+        {
+          "id": "poll_interval",
+          "type": "number",
+          "label": { "en": "Poll Interval (seconds)" },
+          "hint": { "en": "How often to query the charger status (minimum 10 seconds)" },
+          "value": 30,
+          "min": 10,
+          "max": 300
+        }
+      ]
+    }
+  ]
+}

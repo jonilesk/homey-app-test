@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960" width="960" height="960">
+  <defs>
+    <linearGradient id="chargerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00C853;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#00A651;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <!-- Charger body -->
+  <rect x="300" y="120" width="360" height="600" rx="40" ry="40" fill="url(#chargerGrad)"/>
+  <!-- Screen area -->
+  <rect x="360" y="200" width="240" height="160" rx="12" ry="12" fill="#003D1F" opacity="0.6"/>
+  <!-- Lightning bolt (charging symbol) -->
+  <polygon points="510,240 450,340 490,340 440,400 540,290 500,290" fill="#FFFFFF"/>
+  <!-- Cable connector -->
+  <rect x="440" y="420" width="80" height="40" rx="8" ry="8" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="455" y="460" width="50" height="120" rx="6" ry="6" fill="#FFFFFF" opacity="0.5"/>
+  <!-- Status LED -->
+  <circle cx="480" cy="180" r="12" fill="#00FF66"/>
+  <!-- Base/mount -->
+  <rect x="340" y="720" width="280" height="40" rx="8" ry="8" fill="#006B35"/>
+  <!-- Stand -->
+  <rect x="450" y="760" width="60" height="120" rx="4" ry="4" fill="#006B35"/>
+  <rect x="400" y="860" width="160" height="20" rx="10" ry="10" fill="#004D26"/>
+</svg>

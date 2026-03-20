@@ -1,0 +1,8 @@
+{
+  "id": "disable_charging",
+  "title": { "en": "Disable charging" },
+  "hint": { "en": "Disable the charger to stop or prevent charging" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

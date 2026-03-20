@@ -1,0 +1,11 @@
+{
+  "id": "charging_stopped",
+  "title": { "en": "Charging stopped" },
+  "hint": { "en": "Triggers when charging ends" },
+  "tokens": [
+    { "name": "energy", "type": "number", "title": { "en": "Session Energy (kWh)" }, "example": 12.34 }
+  ],
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

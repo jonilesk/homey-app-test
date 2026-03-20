@@ -1,0 +1,15 @@
+{
+  "name": "homey-api-tools",
+  "version": "1.0.0",
+  "description": "CLI tools for querying Homey API — device inspection, energy diagnostics, capability analysis",
+  "bin": {
+    "homey-query": "./homey-query.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "homey-api": "^3.16.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

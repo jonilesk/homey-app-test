@@ -1,0 +1,8 @@
+{
+  "id": "cable_connected",
+  "title": { "en": "Car connected" },
+  "hint": { "en": "Triggers when an EV is plugged into the charger" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "charging_state_changed",
+  "title": { "en": "Charging state changed" },
+  "hint": { "en": "Triggers when the charger state changes" },
+  "tokens": [
+    { "name": "state", "type": "string", "title": { "en": "State" }, "example": "charging" }
+  ],
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

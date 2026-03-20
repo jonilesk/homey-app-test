@@ -1,0 +1,8 @@
+{
+  "id": "enable_charging",
+  "title": { "en": "Enable charging" },
+  "hint": { "en": "Enable the charger to begin or continue charging" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

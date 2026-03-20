@@ -15,8 +15,8 @@ const BRAND_CONFIG = {
 
 const CLIENT_ID = 'app-front';
 
-// Refresh token when 80% of its lifetime has passed
-const TOKEN_REFRESH_THRESHOLD = 0.8;
+// Refresh token when 50% of its lifetime has passed (more aggressive to prevent expiry)
+const TOKEN_REFRESH_THRESHOLD = 0.5;
 
 class CleverTouchOAuth2Client extends OAuth2Client {
 
@@ -162,6 +162,8 @@ class CleverTouchOAuth2Client extends OAuth2Client {
     this.log('[OAuth2] Found refresh token, proceeding with refresh');
     const tokenUrl = this.tokenUrl;
     
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       const response = await fetch(tokenUrl, {
         method: 'POST',
@@ -172,8 +174,11 @@ class CleverTouchOAuth2Client extends OAuth2Client {
           grant_type: 'refresh_token',
           client_id: CLIENT_ID,
           refresh_token: refreshToken
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeout);
 
       this.log(`[OAuth2] Refresh response status: ${response.status}`);
 
@@ -210,6 +215,11 @@ class CleverTouchOAuth2Client extends OAuth2Client {
         expires_in: tokenData.expires_in
       });
     } catch (error) {
+      clearTimeout(timeout);
+      if (error.name === 'AbortError') {
+        this.log('[OAuth2] Token refresh request timed out');
+        throw new Error('Token refresh timed out');
+      }
       this.log(`[OAuth2] Refresh error:`, error);
       throw error;
     }
@@ -467,12 +477,22 @@ class CleverTouchOAuth2Client extends OAuth2Client {
                 if (typeof this.save === 'function') {
                   await this.save();
                 }
+                // Also update settings backup so token survives restarts
+                if (newToken.access_token) {
+                  this.homey.settings.set('clevertouch_access_token', newToken.access_token);
+                }
+                if (newToken.refresh_token) {
+                  this.homey.settings.set('clevertouch_refresh_token', newToken.refresh_token);
+                }
                 this.log('[API] Token refreshed and saved. Retrying request...');
                 continue; // Retry loop with new token
               }
             } catch (refreshError) {
               this.log('[API] Failed to refresh token:', refreshError.message);
-              throw new Error('Unauthorized - Refresh failed');
+              // Auth is permanently broken - don't waste retries
+              const authError = new Error('Authentication expired. Please re-pair the device in Homey.');
+              authError.isAuthError = true;
+              throw authError;
             }
           }
 
@@ -498,6 +518,11 @@ class CleverTouchOAuth2Client extends OAuth2Client {
       } catch (error) {
         lastError = error;
         this.log(`API call failed (attempt ${attempt}/${maxRetries}):`, error.message);
+
+        // Don't retry on permanent auth failures
+        if (error.isAuthError) {
+          throw error;
+        }
 
         if (attempt < maxRetries) {
           // Backoff with jitter (linear backoff + random 0-500ms)

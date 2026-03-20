@@ -8,6 +8,8 @@
     "set_temperature_failed": "Failed to set temperature. Please try again.",
     "set_mode_failed": "Failed to set heat mode. Please try again.",
     "invalid_mode": "Invalid heat mode selected.",
-    "set_presets_failed": "Failed to update temperature presets. Please try again."
+    "set_presets_failed": "Failed to update temperature presets. Please try again.",
+    "auth_expired": "Login expired. Use the Repair button to re-authenticate.",
+    "repair_login_failed": "Login failed. Please check your email and password."
   }
 }

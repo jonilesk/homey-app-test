@@ -1,0 +1,14 @@
+{
+  "type": "enum",
+  "title": { "en": "Cable State" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    { "id": "no_cable", "title": { "en": "No Cable" } },
+    { "id": "cable_cs", "title": { "en": "Cable at Station" } },
+    { "id": "cable_locked", "title": { "en": "Cable Locked" } },
+    { "id": "cable_ev", "title": { "en": "Cable + EV Connected" } },
+    { "id": "cable_locked_ev", "title": { "en": "Cable Locked + EV" } }
+  ]
+}

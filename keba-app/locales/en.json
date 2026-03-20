@@ -1,0 +1,23 @@
+{
+  "errors": {
+    "connection_failed": "Could not connect to KEBA charger at {{host}}",
+    "not_keba_device": "Device at {{host}} is not a KEBA KeContact charger",
+    "command_failed": "Failed to send command to charger",
+    "charger_unavailable": "Charger is not responding",
+    "invalid_current": "Invalid current value. Must be 0 or 6–63 A.",
+    "invalid_energy": "Invalid energy limit. Must be 0–10000 kWh."
+  },
+  "pairing": {
+    "title": "Configure KEBA Charger",
+    "ip_label": "Charger IP Address",
+    "ip_placeholder": "e.g. 192.168.1.50",
+    "serial_label": "Serial Number (optional)",
+    "serial_placeholder": "Leave empty to auto-detect"
+  },
+  "settings": {
+    "host_label": "IP Address",
+    "host_hint": "IP address of the KEBA charger on your local network",
+    "poll_interval_label": "Poll Interval (seconds)",
+    "poll_interval_hint": "How often to query the charger status"
+  }
+}

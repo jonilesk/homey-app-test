@@ -1,0 +1,13 @@
+{
+  "name": "fi.leskinen.keba-kecontact",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "discover": "node cli/discover.js",
+    "read": "node cli/read-status.js",
+    "monitor": "node cli/monitor.js"
+  },
+  "dependencies": {
+    "commander": "^11.0.0"
+  }
+}

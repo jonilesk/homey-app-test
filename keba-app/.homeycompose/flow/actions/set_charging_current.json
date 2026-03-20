@@ -1,0 +1,10 @@
+{
+  "id": "set_charging_current",
+  "title": { "en": "Set charging current" },
+  "titleFormatted": { "en": "Set charging current to [[current]] A" },
+  "hint": { "en": "Set the maximum charging current in Amperes (6-63 A)" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" },
+    { "type": "number", "name": "current", "min": 6, "max": 63, "step": 1, "title": { "en": "Current (A)" }, "placeholder": { "en": "16" } }
+  ]
+}

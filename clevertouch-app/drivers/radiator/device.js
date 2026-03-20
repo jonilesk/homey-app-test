@@ -234,9 +234,14 @@ class RadiatorDevice extends OAuth2Device {
       const errorMsg = error?.message || String(error) || 'Unknown error';
       this.error('Poll failed:', errorMsg);
 
+      // Show user-friendly message for auth errors
+      const displayMsg = error?.isAuthError
+        ? this.homey.__('errors.auth_expired')
+        : errorMsg;
+
       // Only mark unavailable if was previously available
       if (this.getAvailable()) {
-        await this.setUnavailable(errorMsg);
+        await this.setUnavailable(displayMsg);
         this.log('Device marked unavailable due to error');
       }
       // Continue polling - will retry on next interval

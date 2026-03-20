@@ -1,0 +1,11 @@
+{
+  "id": "charging_started",
+  "title": { "en": "Charging started" },
+  "hint": { "en": "Triggers when the charger begins actively charging a vehicle" },
+  "tokens": [
+    { "name": "power", "type": "number", "title": { "en": "Power (W)" }, "example": 7400 }
+  ],
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "set_energy_limit",
+  "title": { "en": "Set session energy limit" },
+  "titleFormatted": { "en": "Set session energy limit to [[energy]] kWh" },
+  "hint": { "en": "Set the energy limit for the current charging session in kWh. Set to 0 to disable limit." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=keba" },
+    { "type": "number", "name": "energy", "min": 0, "max": 100, "step": 0.1, "title": { "en": "Energy (kWh)" }, "placeholder": { "en": "20" } }
+  ]
+}

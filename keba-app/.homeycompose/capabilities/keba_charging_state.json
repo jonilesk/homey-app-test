@@ -1,0 +1,15 @@
+{
+  "type": "enum",
+  "title": { "en": "Charging State" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    { "id": "starting", "title": { "en": "Starting" } },
+    { "id": "not_ready", "title": { "en": "Not Ready" } },
+    { "id": "ready", "title": { "en": "Ready" } },
+    { "id": "charging", "title": { "en": "Charging" } },
+    { "id": "error", "title": { "en": "Error" } },
+    { "id": "auth_rejected", "title": { "en": "Authorization Rejected" } }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "number",
+  "title": { "en": "Current Limit" },
+  "units": { "en": "A" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "slider",
+  "min": 6,
+  "max": 63,
+  "step": 1,
+  "decimals": 0
+}

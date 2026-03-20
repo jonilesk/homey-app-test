@@ -27,6 +27,51 @@ class RadiatorDriver extends OAuth2Driver {
   }
 
   /**
+   * Called when user clicks "Repair" on an unavailable device.
+   * Re-authenticates and updates the token so the device can resume polling.
+   */
+  async onRepair(session, device) {
+    this.log(`[REPAIR] Repair started for device: ${device.getName()}`);
+
+    session.setHandler('showView', async (viewId) => {
+      this.log(`[REPAIR] Showing view: ${viewId}`);
+    });
+
+    // The login_credentials template calls this handler with username/password
+    session.setHandler('login', async (data) => {
+      this.log(`[REPAIR] Login attempt for: ${data.username}`);
+
+      try {
+        // Get the device's existing OAuth2 client
+        const oAuth2Client = device.oAuth2Client;
+
+        // Re-authenticate with fresh credentials
+        const token = await oAuth2Client.onGetTokenByCredentials({
+          username: data.username,
+          password: data.password
+        });
+
+        // Update the token in the client
+        oAuth2Client.setToken(token);
+        if (typeof oAuth2Client.save === 'function') {
+          await oAuth2Client.save();
+        }
+
+        this.log('[REPAIR] Token refreshed successfully via re-authentication');
+
+        // Mark device available again and trigger a poll
+        await device.setAvailable();
+        device.poll().catch(err => this.error('[REPAIR] Post-repair poll failed:', err.message));
+
+        return true;
+      } catch (error) {
+        this.error('[REPAIR] Re-authentication failed:', error.message);
+        throw new Error(this.homey.__('errors.repair_login_failed'));
+      }
+    });
+  }
+
+  /**
    * onPairListDevices is called when a user tries to pair a new device.
    * This should return an array with the data of devices available for pairing.
    */
