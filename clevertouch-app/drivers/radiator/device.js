@@ -8,23 +8,24 @@ const POLL_INTERVAL_QUICK = 15 * 1000;     // 15 seconds after change
 const QUICK_POLL_COUNT = 3;                // Number of quick polls
 
 // Heat mode mappings
-// API values: 0=Off, 1=Eco, 2=Frost, 3=Comfort, 4=Program, 5=Boost
+// API values: 0=Comfort, 1=Off, 2=Frost, 3=Eco, 4=Boost, 8=Program(comfort), 11=Program(eco)
 const HEAT_MODE_TO_VALUE = {
-  'Off': 0,
-  'Eco': 1,
+  'Comfort': 0,
+  'Off': 1,
   'Frost': 2,
-  'Comfort': 3,
-  'Program': 4,
-  'Boost': 5
+  'Eco': 3,
+  'Boost': 4,
+  'Program': 11
 };
 
 const VALUE_TO_HEAT_MODE = {
-  0: 'Off',
-  1: 'Eco',
+  0: 'Comfort',
+  1: 'Off',
   2: 'Frost',
-  3: 'Comfort',
-  4: 'Program',
-  5: 'Boost'
+  3: 'Eco',
+  4: 'Boost',
+  8: 'Program',
+  11: 'Program'
 };
 
 class RadiatorDevice extends OAuth2Device {
@@ -128,15 +129,15 @@ class RadiatorDevice extends OAuth2Device {
       }
 
       // Update heat mode
-      // Home general_mode takes precedence over device gv_mode when set (1-5)
+      // Home general_mode takes precedence over device gv_mode when set
       // general_mode=0 means "no home-wide override" so use device's gv_mode
       let heatMode = 'Off';
       let effectiveMode = deviceData.gv_mode;
       
-      // If home general_mode is set to an active mode (1-5), use it instead of device mode
-      // 0 = no override, 1+ = active mode override
+      // If home general_mode is set to an active mode, use it instead of device mode
+      // 0 = no override, >0 = active mode override if valid
       const homeGeneralMode = parseInt(deviceData._homeGeneralMode, 10);
-      if (!isNaN(homeGeneralMode) && homeGeneralMode >= 1 && homeGeneralMode <= 5) {
+      if (!isNaN(homeGeneralMode) && homeGeneralMode > 0 && VALUE_TO_HEAT_MODE[homeGeneralMode] !== undefined) {
         effectiveMode = homeGeneralMode;
         this.log(`Using home general_mode: ${homeGeneralMode} instead of device gv_mode: ${deviceData.gv_mode}`);
       }
@@ -173,8 +174,11 @@ class RadiatorDevice extends OAuth2Device {
           targetTemp = deviceData.consigne_boost;
           break;
         case 'Program':
-          // Program mode uses scheduled setpoints, show comfort as reference
-          targetTemp = deviceData.consigne_confort;
+          if (parseInt(effectiveMode, 10) === 11) {
+            targetTemp = deviceData.consigne_eco;
+          } else {
+            targetTemp = deviceData.consigne_confort;
+          }
           break;
         case 'Off':
         default:

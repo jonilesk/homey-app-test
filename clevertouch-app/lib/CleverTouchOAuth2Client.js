@@ -304,7 +304,7 @@ class CleverTouchOAuth2Client extends OAuth2Client {
 
   /**
    * Set device mode (Off/Frost/Eco/Comfort/Program/Boost)
-   * Mode values: 0=Off, 1=Frost, 2=Eco, 3=Comfort, 4=Program, 5=Boost
+   * Mode values: 0=Comfort, 1=Off, 2=Frost, 3=Eco, 4=Boost, 8=Program(comfort), 11=Program(eco)
    */
   async setDeviceMode(homeId, deviceLocalId, mode) {
     const response = await this._apiCall('POST', '/human/query/push/', {
